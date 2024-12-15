@@ -18,7 +18,8 @@ const CreateOrderForm = ({ onCancel }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/orders", {
+      const BASE_URL = process.env.REACT_APP_BASE_URL;
+      const response = await fetch(`${BASE_URL}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

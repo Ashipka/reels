@@ -6,7 +6,7 @@ const portfolioRoutes = require("./routes/portfolio");
 
 const app = express();
 const cors = require('cors');
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 app.use(bodyParser.json());
 

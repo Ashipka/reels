@@ -11,10 +11,11 @@ const PortfolioForm = ({ onSave, editingItem }) => {
     e.preventDefault();
     setError("");
   
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
     const method = editingItem ? "PUT" : "POST";
     const endpoint = editingItem
-      ? `http://localhost:5000/portfolio/${editingItem.id}` // Ensure editingItem.id is defined
-      : "http://localhost:5000/portfolio";
+      ? `${BASE_URL}/portfolio/${editingItem.id}` // Ensure editingItem.id is defined
+      : `${BASE_URL}/portfolio`;
   
     try {
       const response = await fetch(endpoint, {

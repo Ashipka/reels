@@ -17,6 +17,8 @@ const LoginForm = () => {
     setError(""); // Reset error message when toggling
   };
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Reset error message
@@ -27,7 +29,7 @@ const LoginForm = () => {
       : JSON.stringify({ email, password }); // For login
 
     try {
-      const response = await fetch(`http://localhost:5000/auth/${endpoint}`, {
+      const response = await fetch(`${BASE_URL}/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: body,

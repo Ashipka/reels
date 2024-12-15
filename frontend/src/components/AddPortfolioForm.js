@@ -26,10 +26,11 @@ const AddPortfolioForm = ({ onSaved, editingItem }) => {
     setError("");
   
     try {
+      const BASE_URL = process.env.REACT_APP_BASE_URL;
       const method = editingItem ? "PUT" : "POST";
       const endpoint = editingItem
-        ? `http://localhost:5000/portfolio/${editingItem.id}`
-        : "http://localhost:5000/portfolio";
+        ? `${BASE_URL}/portfolio/${editingItem.id}`
+        : `${BASE_URL}/portfolio`;
   
       const response = await fetch(endpoint, {
         method,

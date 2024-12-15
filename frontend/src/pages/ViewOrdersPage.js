@@ -12,7 +12,8 @@ const ViewOrdersPage = () => {
         const token = localStorage.getItem("token");
       
         try {
-          const response = await fetch("http://localhost:5000/orders", {
+          const BASE_URL = process.env.REACT_APP_BASE_URL;
+          const response = await fetch(`${BASE_URL}/orders`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -41,7 +42,8 @@ const ViewOrdersPage = () => {
 
   const handleCancelOrder = async (orderId) => {
     try {
-      const response = await fetch(`http://localhost:5000/orders/cancel/${orderId}`, {
+      const BASE_URL = process.env.REACT_APP_BASE_URL;
+      const response = await fetch(`${BASE_URL}/orders/cancel/${orderId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

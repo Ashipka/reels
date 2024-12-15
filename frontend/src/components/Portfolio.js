@@ -8,7 +8,8 @@ const Portfolio = ({ creatorId, onEdit }) => {
     useEffect(() => {
       const fetchPortfolio = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/portfolio/${creatorId}`, {
+          const BASE_URL = process.env.REACT_APP_BASE_URL;
+          const response = await fetch(`${BASE_URL}/portfolio/${creatorId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
