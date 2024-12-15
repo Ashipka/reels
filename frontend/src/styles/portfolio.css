@@ -1,0 +1,91 @@
+.portfolio {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .portfolio h2 {
+    color: #4a90e2;
+  }
+  
+  .portfolio ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .portfolio ul li {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .portfolio ul li button {
+    margin-top: 10px;
+    background-color: #4a90e2;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .portfolio ul li button:hover {
+    background-color: #357ab8;
+  }
+  
+  .portfolio-form {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .portfolio-form form input,
+  .portfolio-form form textarea {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .portfolio-form form button {
+    background-color: #4a90e2;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .portfolio-form form button:hover {
+    background-color: #357ab8;
+  }
+  
+  .portfolio-management {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .portfolio-management h2 {
+    color: #4a90e2;
+  }
+  
+  .dashboard-actions button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .dashboard-actions button:hover {
+    background-color: #357ab8;
+  }
+  

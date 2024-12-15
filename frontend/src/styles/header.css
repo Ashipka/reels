@@ -1,0 +1,78 @@
+header {
+    background-color: #4a90e2;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  header .logo {
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  header nav ul {
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  header nav ul li {
+    display: inline-flex; /* Ensure items behave like buttons */
+    align-items: center;
+  }
+  
+  header nav ul li a,
+  header nav ul li button {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 15px; /* Ensure consistent padding */
+    line-height: 1.5; /* Align the text baseline */
+  }
+  
+  header nav ul li button:hover,
+  header nav ul li a:hover {
+    text-decoration: underline;
+  }
+
+
+  .user-menu {
+    position: relative; /* Establish a parent element for the dropdown menu */
+  }
+  
+  .user-menu .dropdown-menu {
+    position: absolute;
+    top: 100%; /* Position below the button */
+    right: 0; /* Align to the right of the parent */
+    background-color: #fff; /* White background */
+    color: #333; /* Dark text color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 10px; /* Add padding inside the dropdown */
+    z-index: 1000; /* Ensure it appears above other elements */
+  }
+  
+  .user-menu .dropdown-menu button {
+    width: 100%; /* Full width of the dropdown menu */
+    text-align: left; /* Align text to the left */
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: #333; /* Dark text color */
+  }
+  
+  .user-menu .dropdown-menu button:hover {
+    background-color: #e6e6e6; /* Light gray hover effect */
+  }

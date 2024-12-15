@@ -1,0 +1,28 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Body takes full viewport height */
+    margin: 0; /* Remove default margin */
+  }
+  
+  .content {
+    flex: 1; /* Push footer to the bottom by expanding the content area */
+  }
+  
+  h1, h2 {
+    color: #4a90e2;
+  }
+  
+  button {
+    background-color: #4a90e2;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  button:hover {
+    background-color: #357ab8;
+  }
+  
