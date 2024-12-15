@@ -30,6 +30,7 @@ function App() {
   return (
     <UserContext.Provider value={{ user, setUser }}>
       <Router>
+      <div className="wrapper"> {}
         <Header />
         <div className="content">
           <Routes>
@@ -81,6 +82,7 @@ function App() {
           </Routes>
         </div>
         <Footer />
+        </div>
       </Router>
     </UserContext.Provider>
   );
