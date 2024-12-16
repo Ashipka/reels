@@ -12,8 +12,8 @@ const PortfolioForm = ({ onSave, editingItem }) => {
     setError("");
   
     const BASE_URL = process.env.REACT_APP_BASE_URL;
-    const method = editingItem ? "PUT" : "POST";
-    const endpoint = editingItem
+    const method = editingItem && editingItem.id ? "PUT" : "POST";
+    const endpoint = editingItem && editingItem.id
       ? `${BASE_URL}/portfolio/${editingItem.id}` // Ensure editingItem.id is defined
       : `${BASE_URL}/portfolio`;
   
