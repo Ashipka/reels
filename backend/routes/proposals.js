@@ -5,28 +5,28 @@ const pool = require("../db");
 
 // Creator submits a proposal
 router.post("/", authenticateToken, async (req, res) => {
-  const { order_id, proposal_message, proposed_price } = req.body;
+  console.log(req.body); // Log the incoming request body
+
+  const { order_id, proposal_message, proposed_price, delivery_days } = req.body;
   const creator_id = req.user.id;
 
-  if (!order_id || !proposal_message || !proposed_price) {
+  if (!order_id || !proposal_message || !proposed_price || !delivery_days) {
     return res.status(400).json({ message: "All fields are required!" });
   }
 
   try {
     const result = await pool.query(
-      `INSERT INTO proposals (order_id, creator_id, message, proposed_price)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [order_id, creator_id, proposal_message, proposed_price]
+      `INSERT INTO proposals (order_id, creator_id, message, proposed_price, delivery_days)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [order_id, creator_id, proposal_message, proposed_price, delivery_days]
     );
-    console.log("Proposal inserted:", result.rows[0]);
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error("Error creating proposal:", err);
+    console.error("Error creating proposal:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
 
 // Client views proposals for their order
 router.get("/order/:orderId", authenticateToken, async (req, res) => {
