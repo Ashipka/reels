@@ -56,4 +56,16 @@ router.put("/cancel/:id", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/open", authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM orders WHERE status = 'Open'"
+    );
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Error fetching open orders:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = router;

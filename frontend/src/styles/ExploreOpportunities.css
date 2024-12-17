@@ -1,0 +1,38 @@
+.explore-opportunities {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .explore-opportunities h2 {
+    color: #4a90e2;
+  }
+  
+  .explore-opportunities ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .explore-opportunities li {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 10px auto;
+    padding: 15px;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .explore-opportunities button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .explore-opportunities button:hover {
+    background-color: #357ab8;
+  }
+  

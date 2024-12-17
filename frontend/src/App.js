@@ -10,6 +10,8 @@ import CreateOrderPage from "./pages/CreateOrderPage";
 import ViewOrdersPage from "./pages/ViewOrdersPage";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import PortfolioManagement from "./pages/PortfolioManagement";
+import ExploreOpportunities from "./pages/ExploreOpportunities"; // Import the new component
+
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -20,6 +22,7 @@ import "./styles/dashboard.css";
 import "./styles/create-order.css";
 import "./styles/view-orders.css";
 import "./styles/portfolio.css";
+import "./styles/ExploreOpportunities.css"
 
 // Create User Context
 export const UserContext = createContext();
@@ -60,6 +63,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PortfolioManagement />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/opportunities"
+              element={
+                <ProtectedRoute>
+                  <ExploreOpportunities />
                 </ProtectedRoute>
               }
             />

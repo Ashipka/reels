@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth'); // Authentication routes
 const orderRoutes = require('./routes/orders'); // Order routes
 const portfolioRoutes = require("./routes/portfolio"); 
+const proposalRoutes = require("./routes/proposals");
 
 const app = express();
 const cors = require('cors');
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use('/auth', authRoutes); // Auth routes
 app.use('/orders', orderRoutes); // Order routes
 app.use("/portfolio", portfolioRoutes); // Подключение портфолио
+app.use("/proposals", proposalRoutes); // Attach the proposals route
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
