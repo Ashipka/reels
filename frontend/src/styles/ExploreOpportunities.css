@@ -35,4 +35,21 @@
   .explore-opportunities button:hover {
     background-color: #357ab8;
   }
+
+  .order-item {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-bottom: 1em;
+  }
+  
+  .order-info {
+    margin-bottom: 1em;
+  }
+  
+  .proposal-info {
+    margin-top: 1em;
+    background: #f9f9f9;
+    padding: 1em;
+  }
+  
   

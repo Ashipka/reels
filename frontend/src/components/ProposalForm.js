@@ -1,11 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/ProposalForm.css";
 
-const ProposalForm = ({ order, onSave, onCancel }) => {
+const ProposalForm = ({ order, proposal, onSave, onCancel }) => {
   const [message, setMessage] = useState("");
   const [price, setPrice] = useState("");
   const [deliveryDays, setDeliveryDays] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (proposal) {
+      // If editing, pre-fill fields
+      setMessage(proposal.message || "");
+      setPrice(proposal.proposed_price || "");
+      setDeliveryDays(proposal.delivery_days || "");
+    } else {
+      // If creating a new proposal, clear fields
+      setMessage("");
+      setPrice("");
+      setDeliveryDays("");
+    }
+  }, [proposal]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,18 +29,24 @@ const ProposalForm = ({ order, onSave, onCancel }) => {
       return;
     }
 
-    // Pass all fields to parent component
-    onSave({
+    const updatedProposal = {
       order_id: order.id,
       proposal_message: message,
       proposed_price: price,
       delivery_days: deliveryDays,
-    });
+    };
+
+    // If editing an existing proposal, include its id
+    if (proposal && proposal.id) {
+      updatedProposal.id = proposal.id;
+    }
+
+    onSave(updatedProposal);
   };
 
   return (
     <div className="proposal-container">
-      <h2>Submit a Proposal</h2>
+      <h2>{proposal ? "Edit Your Proposal" : "Submit a Proposal"}</h2>
 
       {/* Order Details */}
       <div className="order-details">
@@ -51,7 +71,7 @@ const ProposalForm = ({ order, onSave, onCancel }) => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
-        ></textarea>
+        />
 
         <input
           type="number"
@@ -71,7 +91,7 @@ const ProposalForm = ({ order, onSave, onCancel }) => {
 
         <div className="button-container">
           <button type="submit" className="submit-btn">
-            Send Proposal
+            {proposal ? "Update Proposal" : "Send Proposal"}
           </button>
           <button type="button" className="cancel-btn" onClick={onCancel}>
             Cancel
