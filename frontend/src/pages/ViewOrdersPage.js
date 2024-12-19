@@ -1,52 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "../styles/view-orders.css"; // We'll add this stylesheet
 
 const ViewOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const token = localStorage.getItem("token");
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
-        const token = localStorage.getItem("token");
-      
-        try {
-          const BASE_URL = process.env.REACT_APP_BASE_URL;
-          const response = await fetch(`${BASE_URL}/orders`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-      
-          if (!response.ok) {
-            const { message } = await response.json();
-            throw new Error(message);
-          }
-      
-          const data = await response.json();
-          console.log("Fetched orders:", data);
-      
-          setOrders(data); // Update the orders state
-          setLoading(false); // Stop the loading state
-        } catch (err) {
-          console.error("Error fetching orders:", err.message);
-          setError("Failed to fetch orders. Please try again."); // Set error message
-          setLoading(false); // Stop the loading state even if there's an error
+      if (!token) {
+        setError("You are not authenticated.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}/orders`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const { message } = await response.json();
+          throw new Error(message);
         }
-      };
-      
+
+        const data = await response.json();
+        setOrders(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching orders:", err.message);
+        setError("Failed to fetch orders. Please try again.");
+        setLoading(false);
+      }
+    };
+
     fetchOrders();
-  }, []);
+  }, [token, BASE_URL]);
 
   const handleCancelOrder = async (orderId) => {
     try {
-      const BASE_URL = process.env.REACT_APP_BASE_URL;
       const response = await fetch(`${BASE_URL}/orders/cancel/${orderId}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -66,11 +69,17 @@ const ViewOrdersPage = () => {
       );
     } catch (err) {
       console.error("Error cancelling order:", err);
+      setError("Failed to cancel the order.");
     }
   };
 
   const handleCreateNewOrder = () => {
     navigate("/create-order");
+  };
+
+  const handleViewProposals = (orderId) => {
+    // Navigate to separate route for proposals
+    navigate(`/orders/${orderId}/proposals`);
   };
 
   if (loading) return <p>Loading your orders...</p>;
@@ -82,28 +91,24 @@ const ViewOrdersPage = () => {
       {orders.length === 0 ? (
         <p>You have no orders yet.</p>
       ) : (
-        <ul>
+        <ul className="orders-list">
           {orders.map((order) => (
             <li key={order.id} className="order-item">
               <h3>{order.title}</h3>
               <p>{order.description}</p>
-              <p>
-                <strong>Budget:</strong> ${order.budget}
-              </p>
-              <p>
-                <strong>Date:</strong> {new Date(order.created_at).toLocaleString()}
-              </p>
-              <p>
-                <strong>Status:</strong> {order.status}
-              </p>
-              {order.status === "Open" && (
-                <button
-                  className="cancel-button"
-                  onClick={() => handleCancelOrder(order.id)}
-                >
-                  Cancel Order
+              <p><strong>Budget:</strong> ${Number(order.budget).toFixed(2)}</p>
+              <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
+              <p><strong>Status:</strong> {order.status}</p>
+              <div className="order-actions">
+                <button className="action-button" onClick={() => handleViewProposals(order.id)}>
+                  View Proposals
                 </button>
-              )}
+                {order.status === "Open" && (
+                  <button className="action-button secondary" onClick={() => handleCancelOrder(order.id)}>
+                    Cancel Order
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

@@ -1,0 +1,83 @@
+.proposals-page {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: left;
+  }
+  
+  .proposals-page h3 {
+    font-size: 22px;
+    color: #4a90e2;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  .proposals-form {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .proposals-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+  }
+  
+  .proposal-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .proposal-item label {
+    display: flex;
+    align-items: center; /* Align radio and text on the same vertical level */
+    cursor: pointer;
+  }
+  
+  .proposal-item input[type="radio"] {
+    margin-right: 10px; /* Space between radio and text */
+    margin-top: 0;      /* Ensure it's vertically centered with the first line of text */
+  }
+  
+  .proposal-details > div {
+    margin-bottom: 5px;
+  }
+  
+  .proposal-details > div:last-child {
+    margin-bottom: 0;
+  }
+  
+  .proposals-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+  
+  /* Action buttons */
+  .action-button {
+    background-color: #4a90e2;
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .action-button:hover {
+    background-color: #357ab8;
+  }
+  
+  .action-button.secondary {
+    background-color: #888;
+  }
+  
+  .action-button.secondary:hover {
+    background-color: #666;
+  }
+  

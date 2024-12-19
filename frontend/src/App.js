@@ -11,6 +11,7 @@ import ViewOrdersPage from "./pages/ViewOrdersPage";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import PortfolioManagement from "./pages/PortfolioManagement";
 import ExploreOpportunities from "./pages/ExploreOpportunities"; // Import the new component
+import ProposalsPage from './pages/ProposalsPage';
 
 
 import "./styles/general.css";
@@ -89,6 +90,12 @@ function App() {
                   <ViewOrdersPage />
                 </ProtectedRoute>
               }
+            />
+            <Route 
+              path="/orders/:orderId/proposals" 
+              element={ <ProtectedRoute>
+                <ProposalsPage />
+              </ProtectedRoute>} 
             />
           </Routes>
         </div>
