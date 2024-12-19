@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
-import "../styles/proposals-page.css"; // We'll add this stylesheet
-
+import "../styles/proposals-page.css";
 
 const ProposalsPage = () => {
   const { orderId } = useParams();
@@ -46,13 +44,12 @@ const ProposalsPage = () => {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/proposals/${selectedProposalId}`, {
+      const response = await fetch(`${BASE_URL}/proposals/${selectedProposalId}/accept`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ state: "ACCEPTED_BY_CUSTOMER" }),
       });
 
       if (!response.ok) {
@@ -61,6 +58,11 @@ const ProposalsPage = () => {
       }
 
       setSuccessMessage("Proposal accepted successfully!");
+      setProposals((prev) =>
+        prev.map((p) =>
+          p.id === selectedProposalId ? { ...p, status: "Accepted" } : p
+        )
+      );
     } catch (err) {
       console.error(err);
       setError("Failed to accept proposal. Please try again.");
@@ -69,41 +71,62 @@ const ProposalsPage = () => {
 
   return (
     <div className="proposals-page">
-    <h3>Proposals for Order #{orderId}</h3>
-    {error && <p className="error-message">{error}</p>}
-    {successMessage && <p className="success-message">{successMessage}</p>}
-  
-    {proposals.length === 0 ? (
-      <p>No proposals found for this order.</p>
-    ) : (
-      <form onSubmit={(e) => e.preventDefault()} className="proposals-form">
-        <ul className="proposals-list">
-          {proposals.map((proposal) => (
-            <li key={proposal.id} className="proposal-item">
-            <label>
-                <input
-                type="radio"
-                name="selectedProposal"
-                value={proposal.id}
-                checked={selectedProposalId === proposal.id}
-                onChange={() => setSelectedProposalId(proposal.id)}
-                />
-                <div className="proposal-details">
-                <div><strong>Proposal #{proposal.id}:</strong> {proposal.message}</div>
-                <div><strong>Proposed Price:</strong> ${Number(proposal.proposed_price).toFixed(2)}</div>
-                <div><strong>Delivery Days:</strong> {proposal.delivery_days}</div>
-                </div>
-            </label>
-            </li>
-          ))}
-        </ul>
-        <div className="proposals-actions">
-          <button type="button" className="action-button" onClick={handleAcceptProposal}>Accept Selected Proposal</button>
-          <button type="button" className="action-button secondary" onClick={() => navigate(-1)}>Back</button>
-        </div>
-      </form>
-    )}
-  </div>
+      <h3>Proposals for Order #{orderId}</h3>
+      {error && <p className="error-message">{error}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
+
+      {proposals.length === 0 ? (
+        <p>No proposals found for this order.</p>
+      ) : (
+        <form onSubmit={(e) => e.preventDefault()} className="proposals-form">
+          <ul className="proposals-list">
+            {proposals.map((proposal) => (
+              <li key={proposal.id} className="proposal-item">
+                <label>
+                  <input
+                    type="radio"
+                    name="selectedProposal"
+                    value={proposal.id}
+                    checked={selectedProposalId === proposal.id}
+                    onChange={() => setSelectedProposalId(proposal.id)}
+                  />
+                  <div className="proposal-details">
+                    <div>
+                      <strong>Proposal #{proposal.id}:</strong> {proposal.message}
+                    </div>
+                    <div>
+                      <strong>Proposed Price:</strong> ${Number(proposal.proposed_price).toFixed(2)}
+                    </div>
+                    <div>
+                      <strong>Delivery Days:</strong> {proposal.delivery_days}
+                    </div>
+                    <div>
+                      <strong>Status:</strong> {proposal.status}
+                    </div>
+                  </div>
+                </label>
+              </li>
+            ))}
+          </ul>
+          <div className="proposals-actions">
+            <button
+              type="button"
+              className="action-button"
+              onClick={handleAcceptProposal}
+            >
+              Accept Selected Proposal
+            </button>
+            <button
+              type="button"
+              className="action-button secondary"
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 };
 

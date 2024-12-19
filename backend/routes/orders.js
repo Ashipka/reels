@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const authenticateToken = require("../middlewares/authenticateToken");
-const pool = require("../db"); // Import your DB connection
+const pool = require("../db");
 
 // Create an order
 router.post("/", authenticateToken, async (req, res) => {
   const { title, description, budget } = req.body;
-  const userId = req.user.id; // Extract userId from middleware
+  const userId = req.user.id; // Extract userId from token
 
   try {
     const result = await pool.query(
@@ -20,12 +20,18 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
-// Get all orders for a user
+// Get all orders for a user with proposal count
 router.get("/", authenticateToken, async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const result = await pool.query("SELECT * FROM orders WHERE user_id = $1", [userId]);
+    const result = await pool.query(
+      `SELECT o.*,
+              COALESCE((SELECT COUNT(*) FROM proposals p WHERE p.order_id = o.id), 0) AS proposal_count
+       FROM orders o
+       WHERE o.user_id = $1`,
+      [userId]
+    );
     res.status(200).json(result.rows);
   } catch (err) {
     console.error("Error fetching orders:", err);
@@ -36,17 +42,16 @@ router.get("/", authenticateToken, async (req, res) => {
 // Cancel an Order
 router.put("/cancel/:id", authenticateToken, async (req, res) => {
   const orderId = req.params.id;
-  const userId = req.user.userId; // Get user ID from token
+  const userId = req.user.id; // Fixed userId from token
 
   try {
-    // Update the order status to 'Cancelled'
     const result = await pool.query(
       "UPDATE orders SET status = $1 WHERE id = $2 AND user_id = $3 AND status = $4 RETURNING *",
       ["Cancelled", orderId, userId, "Open"]
     );
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ message: "Unable to cancel order" });
+      return res.status(400).json({ message: "Unable to cancel order. Either the order does not exist or is already closed." });
     }
 
     res.status(200).json({ message: "Order cancelled successfully", order: result.rows[0] });
@@ -56,10 +61,14 @@ router.put("/cancel/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// Get all open orders (available for creators)
 router.get("/open", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM orders WHERE status = 'Open'"
+      `SELECT o.*,
+              COALESCE((SELECT COUNT(*) FROM proposals p WHERE p.order_id = o.id), 0) AS proposal_count
+       FROM orders o
+       WHERE o.status = 'Open'`
     );
     res.status(200).json(result.rows);
   } catch (err) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/view-orders.css"; // We'll add this stylesheet
+import "../styles/view-orders.css";
 
 const ViewOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -100,11 +100,19 @@ const ViewOrdersPage = () => {
               <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
               <p><strong>Status:</strong> {order.status}</p>
               <div className="order-actions">
-                <button className="action-button" onClick={() => handleViewProposals(order.id)}>
-                  View Proposals
-                </button>
+                {order.proposal_count > 0 && ( // Only show if proposals exist
+                  <button
+                    className="action-button"
+                    onClick={() => handleViewProposals(order.id)}
+                  >
+                    View Proposals ({order.proposal_count})
+                  </button>
+                )}
                 {order.status === "Open" && (
-                  <button className="action-button secondary" onClick={() => handleCancelOrder(order.id)}>
+                  <button
+                    className="action-button secondary"
+                    onClick={() => handleCancelOrder(order.id)}
+                  >
                     Cancel Order
                   </button>
                 )}
