@@ -8,34 +8,47 @@ const ProposalsPage = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
-  const [proposals, setProposals] = useState([]);
+  const [proposals, setProposals] = useState([]); // List of proposals
+  const [status, setOrderStatus] = useState(""); // Order status
   const [error, setError] = useState("");
   const [selectedProposalId, setSelectedProposalId] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [readOnly, setReadOnly] = useState(false); // Add readOnly state
 
   useEffect(() => {
-    const fetchProposals = async () => {
+    const fetchProposalsAndStatus = async () => {
       try {
         const response = await fetch(`${BASE_URL}/proposals/order/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+  
         if (!response.ok) {
-          throw new Error("Failed to fetch proposals for this order");
+          throw new Error("Failed to fetch proposals and order status");
         }
-        const data = await response.json();
-        setProposals(data);
+  
+        const { proposals = [], status } = await response.json();
+        setProposals(proposals);
+        setOrderStatus(status);
+  
+        if (status === "In Progress") {
+          setReadOnly(true);
+          const acceptedProposal = proposals.find((p) => p.status === "Accepted");
+          if (acceptedProposal) {
+            setSelectedProposalId(acceptedProposal.id);
+          }
+        }
       } catch (err) {
         console.error(err);
-        setError("Unable to load proposals");
+        setError("Unable to load proposals and order status");
       }
     };
-
+  
     if (token) {
-      fetchProposals();
+      fetchProposalsAndStatus();
     } else {
       setError("You are not authenticated.");
     }
-  }, [orderId, token, BASE_URL]);
+  }, [orderId, token, BASE_URL]);  
 
   const handleAcceptProposal = async () => {
     if (!selectedProposalId) {
@@ -58,11 +71,7 @@ const ProposalsPage = () => {
       }
 
       setSuccessMessage("Proposal accepted successfully!");
-      setProposals((prev) =>
-        prev.map((p) =>
-          p.id === selectedProposalId ? { ...p, status: "Accepted" } : p
-        )
-      );
+      navigate("/view-orders"); // Redirect to view-orders
     } catch (err) {
       console.error(err);
       setError("Failed to accept proposal. Please try again.");
@@ -83,13 +92,15 @@ const ProposalsPage = () => {
             {proposals.map((proposal) => (
               <li key={proposal.id} className="proposal-item">
                 <label>
-                  <input
-                    type="radio"
-                    name="selectedProposal"
-                    value={proposal.id}
-                    checked={selectedProposalId === proposal.id}
-                    onChange={() => setSelectedProposalId(proposal.id)}
-                  />
+                  {status === "Open" && (
+                    <input
+                      type="radio"
+                      name="selectedProposal"
+                      value={proposal.id}
+                      checked={selectedProposalId === proposal.id}
+                      onChange={() => setSelectedProposalId(proposal.id)}
+                    />
+                  )}
                   <div className="proposal-details">
                     <div>
                       <strong>Proposal #{proposal.id}:</strong> {proposal.message}
@@ -109,13 +120,15 @@ const ProposalsPage = () => {
             ))}
           </ul>
           <div className="proposals-actions">
-            <button
-              type="button"
-              className="action-button"
-              onClick={handleAcceptProposal}
-            >
-              Accept Selected Proposal
-            </button>
+            {status === "Open" && (
+              <button
+                type="button"
+                className="action-button"
+                onClick={handleAcceptProposal}
+              >
+                Accept Selected Proposal
+              </button>
+            )}
             <button
               type="button"
               className="action-button secondary"

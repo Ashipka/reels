@@ -86,46 +86,35 @@ const ViewOrdersPage = () => {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
-    <div className="view-orders">
-      <h2>Your Orders</h2>
-      {orders.length === 0 ? (
-        <p>You have no orders yet.</p>
-      ) : (
-        <ul className="orders-list">
-          {orders.map((order) => (
-            <li key={order.id} className="order-item">
-              <h3>{order.title}</h3>
-              <p>{order.description}</p>
-              <p><strong>Budget:</strong> ${Number(order.budget).toFixed(2)}</p>
-              <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
-              <p><strong>Status:</strong> {order.status}</p>
-              <div className="order-actions">
-                {order.proposal_count > 0 && ( // Only show if proposals exist
-                  <button
-                    className="action-button"
-                    onClick={() => handleViewProposals(order.id)}
-                  >
-                    View Proposals ({order.proposal_count})
-                  </button>
-                )}
-                {order.status === "Open" && (
-                  <button
-                    className="action-button secondary"
-                    onClick={() => handleCancelOrder(order.id)}
-                  >
-                    Cancel Order
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-      <button onClick={handleCreateNewOrder} className="create-new-order-button">
-        Create New Order
-      </button>
-    </div>
+    <ul className="orders-list">
+      {orders.map((order) => (
+        <li key={order.id} className="order-item">
+          <h3>{order.title}</h3>
+          <p>{order.description}</p>
+          <p><strong>Budget:</strong> ${Number(order.budget).toFixed(2)}</p>
+          <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
+          <p><strong>Status:</strong> {order.status}</p>
+          <div className="order-actions">
+            <button
+              className="action-button"
+              style={{ backgroundColor: order.status === "In Progress" ? "#6FCF97" : "#4a90e2" }}
+              onClick={() => handleViewProposals(order.id)}
+            >
+              {`View Proposals (${order.proposal_count})`}
+            </button>
+            {order.status === "Open" && (
+              <button
+                className="action-button secondary"
+                onClick={() => handleCancelOrder(order.id)}
+              >
+                Cancel Order
+              </button>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
   );
-};
+}
 
 export default ViewOrdersPage;

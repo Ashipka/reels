@@ -75,18 +75,38 @@ router.post("/", authenticateToken, async (req, res) => {
 // Client views proposals for their order
 router.get("/order/:orderId", authenticateToken, async (req, res) => {
   const { orderId } = req.params;
+  const userId = req.user.id;
 
   try {
-    const result = await pool.query(
+    // Fetch order status and ensure the user owns the order
+    const orderResult = await pool.query(
+      `SELECT status 
+       FROM orders 
+       WHERE id = $1 AND user_id = $2`,
+      [orderId, userId]
+    );
+
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ message: "Order not found or unauthorized" });
+    }
+
+    const orderStatus = orderResult.rows[0].status;
+
+    // Fetch proposals for the given order
+    const proposalsResult = await pool.query(
       `SELECT p.*, u.name AS creator_name 
        FROM proposals p 
        JOIN users u ON p.creator_id = u.id 
        WHERE p.order_id = $1`,
       [orderId]
     );
-    res.status(200).json(result.rows);
+
+    res.status(200).json({
+      proposals: proposalsResult.rows,
+      status: orderStatus,
+    });
   } catch (err) {
-    console.error("Error fetching proposals:", err);
+    console.error("Error fetching proposals and order status:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
