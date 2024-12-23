@@ -91,7 +91,6 @@ router.get("/order/:orderId", authenticateToken, async (req, res) => {
   }
 });
 
-// Accept a proposal and update the related order's status
 router.put("/:proposalId/accept", authenticateToken, async (req, res) => {
   const { proposalId } = req.params;
 
@@ -118,9 +117,48 @@ router.put("/:proposalId/accept", authenticateToken, async (req, res) => {
       [proposal.order_id]
     );
 
-    res.status(200).json({ message: "Proposal accepted and order updated", proposal });
+    // Fetch creator information associated with the proposal
+    const creatorResult = await pool.query(
+      `SELECT u.email, u.name AS creator_name, o.title AS order_title
+       FROM users u
+       JOIN proposals p ON u.id = p.creator_id
+       JOIN orders o ON p.order_id = o.id
+       WHERE p.id = $1`,
+      [proposalId]
+    );
+
+    if (creatorResult.rows.length === 0) {
+      return res.status(404).json({ message: "Creator not found" });
+    }
+
+    const { email: creatorEmail, creator_name: creatorName, order_title: orderTitle } = creatorResult.rows[0];
+
+    // Create a notification for the creator
+    const notificationMessage = `Your proposal for the order "${orderTitle}" has been accepted.`;
+    await pool.query(
+      `INSERT INTO notifications (user_id, message)
+       VALUES ($1, $2)`,
+      [proposal.creator_id, notificationMessage]
+    );
+
+    // Send an email notification
+    const emailSubject = `Your Proposal for "${orderTitle}" Was Accepted`;
+    const emailBody = `
+      <p>Dear ${creatorName},</p>
+      <p>Congratulations! Your proposal for the order: <strong>${orderTitle}</strong> has been accepted by the client.</p>
+      <p>Please log in to your account to proceed with the next steps.</p>
+      <p>Best regards,</p>
+      <p><strong>Reels Marketplace Team</strong></p>
+    `;
+
+    await sendEmail(creatorEmail, emailSubject, emailBody);
+
+    res.status(200).json({
+      message: "Proposal accepted, notification sent, and email delivered",
+      proposal,
+    });
   } catch (err) {
-    console.error("Error accepting proposal:", err.message);
+    console.error("Error accepting proposal or sending notification/email:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
