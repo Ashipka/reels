@@ -29,7 +29,8 @@ router.get("/", authenticateToken, async (req, res) => {
       `SELECT o.*,
               COALESCE((SELECT COUNT(*) FROM proposals p WHERE p.order_id = o.id), 0) AS proposal_count
        FROM orders o
-       WHERE o.user_id = $1`,
+       WHERE o.user_id = $1
+       order BY o.created_at DESC`,
       [userId]
     );
     res.status(200).json(result.rows);
