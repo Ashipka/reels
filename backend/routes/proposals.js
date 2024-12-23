@@ -156,22 +156,73 @@ router.put("/:proposalId", authenticateToken, async (req, res) => {
   }
 
   try {
-    const result = await pool.query(
-      `UPDATE proposals
-       SET message = $1, proposed_price = $2, delivery_days = $3, created_at = NOW()
-       WHERE id = $4 AND creator_id = $5 RETURNING *`,
-      [proposal_message, proposed_price, delivery_days, proposalId, creator_id]
+    // Ensure the proposal belongs to the authenticated user
+    const proposalCheck = await pool.query(
+      `SELECT p.*, o.user_id AS client_id, o.title AS order_title
+       FROM proposals p
+       JOIN orders o ON p.order_id = o.id
+       WHERE p.id = $1 AND p.creator_id = $2`,
+      [proposalId, creator_id]
     );
 
-    if (result.rows.length === 0) {
+    if (proposalCheck.rows.length === 0) {
       return res.status(404).json({ message: "Proposal not found or unauthorized" });
     }
 
-    res.status(200).json(result.rows[0]);
+    const proposalData = proposalCheck.rows[0];
+    const { client_id: clientId, order_title: orderTitle } = proposalData;
+
+    // Update the proposal
+    const result = await pool.query(
+      `UPDATE proposals
+       SET message = $1, proposed_price = $2, delivery_days = $3, created_at = NOW()
+       WHERE id = $4 RETURNING *`,
+      [proposal_message, proposed_price, delivery_days, proposalId]
+    );
+
+    const updatedProposal = result.rows[0];
+
+    // Create a notification for the client
+    const notificationMessage = `A proposal for your order: "${orderTitle}" has been updated.`;
+    await pool.query(
+      `INSERT INTO notifications (user_id, message)
+       VALUES ($1, $2)`,
+      [clientId, notificationMessage]
+    );
+
+    // Fetch client's email
+    const clientResult = await pool.query(
+      `SELECT email, name FROM users WHERE id = $1`,
+      [clientId]
+    );
+
+    const { email: clientEmail, name: clientName } = clientResult.rows[0];
+
+    // Send an email notification
+    const emailSubject = `Proposal Updated for Your Order: "${orderTitle}"`;
+    const emailBody = `
+      <p>Dear ${clientName},</p>
+      <p>A proposal for your order: <strong>${orderTitle}</strong> has been updated.</p>
+      <p><strong>Updated Proposal Details:</strong></p>
+      <ul>
+        <li>Message: ${proposal_message}</li>
+        <li>Proposed Price: $${Number(proposed_price).toFixed(2)}</li>
+        <li>Delivery Days: ${delivery_days}</li>
+      </ul>
+      <p>Please log in to your account to review the updated proposal.</p>
+      <p>Best regards,</p>
+      <p><strong>Reels Marketplace Team</strong></p>
+    `;
+
+    await sendEmail(clientEmail, emailSubject, emailBody);
+
+    res.status(200).json({
+      message: "Proposal updated, notification sent, and email delivered",
+      proposal: updatedProposal,
+    });
   } catch (err) {
-    console.error("Error updating proposal:", err);
+    console.error("Error updating proposal or sending notification/email:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 module.exports = router;
