@@ -13,7 +13,8 @@ import PortfolioManagement from "./pages/PortfolioManagement";
 import ExploreOpportunities from "./pages/ExploreOpportunities"; // Import the new component
 import ProposalsPage from './pages/ProposalsPage';
 import MyProposalsPage from "./pages/MyProposalsPage";
-
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -42,7 +43,8 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginForm />} />
-
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             {/* Protected Routes */}
             <Route
               path="/dashboard"

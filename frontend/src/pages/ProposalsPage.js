@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
 import "../styles/proposals-page.css";
+
 
 const ProposalsPage = () => {
   const { orderId } = useParams();
@@ -87,6 +89,33 @@ const ProposalsPage = () => {
     }
   };
 
+  const handleStripePayment = async (proposal) => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/stripe/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: proposal.proposed_price,
+          orderId: proposal.order_id,
+          proposalId: proposal.id,
+        }),
+      });
+  
+      const data = await response.json(); // Parsing JSON response
+      console.log("Stripe session response:", data);
+  
+      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+      const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+  
+      if (error) {
+        console.error("Stripe checkout error:", error.message);
+      }
+    } catch (err) {
+      console.error("Error initiating Stripe payment:", err.message);
+    }
+  };
+  
+
   return (
     <div className="proposals-page">
       <h3>Proposals for Order #{orderId}</h3>
@@ -125,6 +154,15 @@ const ProposalsPage = () => {
                     </div>
                   </div>
                 </label>
+                {proposal.status.trim().toLowerCase() === "waiting for payment" && (
+                    <button
+                        className="action-button"
+                        onClick={() => handleStripePayment(proposal)}
+                    >
+                        Pay with Stripe
+                    </button>
+                    )
+                }
               </li>
             ))}
           </ul>
