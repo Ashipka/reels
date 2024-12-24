@@ -12,6 +12,7 @@ import CreatorDashboard from "./pages/CreatorDashboard";
 import PortfolioManagement from "./pages/PortfolioManagement";
 import ExploreOpportunities from "./pages/ExploreOpportunities"; // Import the new component
 import ProposalsPage from './pages/ProposalsPage';
+import MyProposalsPage from "./pages/MyProposalsPage";
 
 
 import "./styles/general.css";
@@ -96,6 +97,14 @@ function App() {
               element={ <ProtectedRoute>
                 <ProposalsPage />
               </ProtectedRoute>} 
+            />
+             <Route
+              path="/my-proposals"
+              element={
+                <ProtectedRoute>
+                  <MyProposalsPage />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </div>

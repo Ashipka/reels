@@ -50,19 +50,20 @@ const ProposalsPage = () => {
     }
   }, [orderId, token, BASE_URL]);  
 
-  const handleAcceptProposal = async () => {
+  const handleUpdateProposalStatus = async (status) => {
     if (!selectedProposalId) {
       setError("No proposal selected");
       return;
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/proposals/${selectedProposalId}/accept`, {
+      const response = await fetch(`${BASE_URL}/proposals/${selectedProposalId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ status }),
       });
 
       if (!response.ok) {
@@ -70,11 +71,19 @@ const ProposalsPage = () => {
         throw new Error(message);
       }
 
-      setSuccessMessage("Proposal accepted successfully!");
-      navigate("/view-orders"); // Redirect to view-orders
+      const message =
+        status === "Accepted"
+          ? "Proposal accepted successfully!"
+          : "Proposal marked as Waiting for Payment!";
+      setSuccessMessage(message);
+
+      // Refetch proposals and update status
+      setTimeout(() => {
+        navigate("/view-orders"); // Redirect to view-orders
+      }, 2000); // Delay for showing success message
     } catch (err) {
       console.error(err);
-      setError("Failed to accept proposal. Please try again.");
+      setError("Failed to update proposal status. Please try again.");
     }
   };
 
@@ -124,7 +133,7 @@ const ProposalsPage = () => {
               <button
                 type="button"
                 className="action-button"
-                onClick={handleAcceptProposal}
+                onClick={() => handleUpdateProposalStatus("Accepted")}
               >
                 Accept Selected Proposal
               </button>

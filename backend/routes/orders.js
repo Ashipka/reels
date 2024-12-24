@@ -69,7 +69,8 @@ router.get("/open", authenticateToken, async (req, res) => {
       `SELECT o.*,
               COALESCE((SELECT COUNT(*) FROM proposals p WHERE p.order_id = o.id), 0) AS proposal_count
        FROM orders o
-       WHERE o.status = 'Open'`
+       WHERE o.status = 'Open'
+       ORDER BY created_at DESC`
     );
     res.status(200).json(result.rows);
   } catch (err) {

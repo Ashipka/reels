@@ -111,15 +111,101 @@ router.get("/order/:orderId", authenticateToken, async (req, res) => {
   }
 });
 
-router.put("/:proposalId/accept", authenticateToken, async (req, res) => {
+router.put("/:proposalId/status", authenticateToken, async (req, res) => {
   const { proposalId } = req.params;
+  const { status } = req.body; // New status to set
+  const userId = req.user.id;
+
+  // Define valid statuses and their corresponding actions
+  const validStatuses = {
+    "Accepted": async (proposal, orderId) => {
+      // Update the order's status to 'In Progress'
+      await pool.query(
+        `UPDATE orders
+         SET status = 'In Progress'
+         WHERE id = $1`,
+        [orderId]
+      );
+
+      // Notify the creator
+      const creatorResult = await pool.query(
+        `SELECT u.email, u.name AS creator_name, o.title AS order_title
+         FROM users u
+         JOIN proposals p ON u.id = p.creator_id
+         JOIN orders o ON p.order_id = o.id
+         WHERE p.id = $1`,
+        [proposalId]
+      );
+
+      if (creatorResult.rows.length === 0) {
+        throw new Error("Creator not found");
+      }
+
+      const { email: creatorEmail, creator_name: creatorName, order_title: orderTitle } = creatorResult.rows[0];
+
+      const notificationMessage = `Your proposal for the order "${orderTitle}" has been accepted.`;
+      await pool.query(
+        `INSERT INTO notifications (user_id, message)
+         VALUES ($1, $2)`,
+        [proposal.creator_id, notificationMessage]
+      );
+
+      const emailSubject = `Your Proposal for "${orderTitle}" Was Accepted`;
+      const emailBody = `
+        <p>Dear ${creatorName},</p>
+        <p>Congratulations! Your proposal for the order: <strong>${orderTitle}</strong> has been accepted by the client.</p>
+        <p>Please log in to your account to proceed with the next steps.</p>
+        <p>Best regards,</p>
+        <p><strong>Reels Marketplace Team</strong></p>
+      `;
+
+      await sendEmail(creatorEmail, emailSubject, emailBody);
+    },
+    "Waiting for Payment": async (proposal) => {
+      // Notify the client that the creator has marked the proposal as "Waiting for Payment"
+      const clientResult = await pool.query(
+        `SELECT u.email, u.name AS client_name, o.title AS order_title
+         FROM users u
+         JOIN orders o ON o.user_id = u.id
+         WHERE o.id = $1`,
+        [proposal.order_id]
+      );
+
+      if (clientResult.rows.length === 0) {
+        throw new Error("Client not found");
+      }
+
+      const { email: clientEmail, client_name: clientName, order_title: orderTitle } = clientResult.rows[0];
+
+      const notificationMessage = `The creator has marked the proposal for your order "${orderTitle}" as "Waiting for Payment".`;
+      await pool.query(
+        `INSERT INTO notifications (user_id, message)
+         VALUES ($1, $2)`,
+        [proposal.creator_id, notificationMessage]
+      );
+
+      const emailSubject = `Proposal for "${orderTitle}" Updated to "Waiting for Payment"`;
+      const emailBody = `
+        <p>Dear ${clientName},</p>
+        <p>The creator has updated the proposal for your order: <strong>${orderTitle}</strong> to "Waiting for Payment".</p>
+        <p>Please log in to your account to proceed with the payment.</p>
+        <p>Best regards,</p>
+        <p><strong>Reels Marketplace Team</strong></p>
+      `;
+
+      await sendEmail(clientEmail, emailSubject, emailBody);
+    },
+  };
 
   try {
-    // Mark the proposal as Accepted
+    // Check if the status is valid
+    if (!Object.keys(validStatuses).includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    // Fetch the proposal and ensure it belongs to the user
     const proposalResult = await pool.query(
-      `UPDATE proposals
-       SET status = 'Accepted'
-       WHERE id = $1 RETURNING *`,
+      `SELECT * FROM proposals WHERE id = $1`,
       [proposalId]
     );
 
@@ -129,59 +215,32 @@ router.put("/:proposalId/accept", authenticateToken, async (req, res) => {
 
     const proposal = proposalResult.rows[0];
 
-    // Update the related order's status
-    await pool.query(
-      `UPDATE orders
-       SET status = 'In Progress'
-       WHERE id = $1`,
-      [proposal.order_id]
-    );
+    // Check if the user is authorized to update the status
+    const isCreator = proposal.creator_id === userId;
+    const isClient = (await pool.query(`SELECT id FROM orders WHERE id = $1 AND user_id = $2`, [proposal.order_id, userId])).rows.length > 0;
 
-    // Fetch creator information associated with the proposal
-    const creatorResult = await pool.query(
-      `SELECT u.email, u.name AS creator_name, o.title AS order_title
-       FROM users u
-       JOIN proposals p ON u.id = p.creator_id
-       JOIN orders o ON p.order_id = o.id
-       WHERE p.id = $1`,
-      [proposalId]
-    );
-
-    if (creatorResult.rows.length === 0) {
-      return res.status(404).json({ message: "Creator not found" });
+    if (!isCreator && !isClient) {
+      return res.status(403).json({ message: "Unauthorized action" });
     }
 
-    const { email: creatorEmail, creator_name: creatorName, order_title: orderTitle } = creatorResult.rows[0];
-
-    // Create a notification for the creator
-    const notificationMessage = `Your proposal for the order "${orderTitle}" has been accepted.`;
+    // Update the proposal's status
     await pool.query(
-      `INSERT INTO notifications (user_id, message)
-       VALUES ($1, $2)`,
-      [proposal.creator_id, notificationMessage]
+      `UPDATE proposals
+       SET status = $1
+       WHERE id = $2`,
+      [status, proposalId]
     );
 
-    // Send an email notification
-    const emailSubject = `Your Proposal for "${orderTitle}" Was Accepted`;
-    const emailBody = `
-      <p>Dear ${creatorName},</p>
-      <p>Congratulations! Your proposal for the order: <strong>${orderTitle}</strong> has been accepted by the client.</p>
-      <p>Please log in to your account to proceed with the next steps.</p>
-      <p>Best regards,</p>
-      <p><strong>Reels Marketplace Team</strong></p>
-    `;
+    // Execute the specific action for the new status
+    await validStatuses[status](proposal, proposal.order_id);
 
-    await sendEmail(creatorEmail, emailSubject, emailBody);
-
-    res.status(200).json({
-      message: "Proposal accepted, notification sent, and email delivered",
-      proposal,
-    });
+    res.status(200).json({ message: `Proposal status updated to "${status}" successfully` });
   } catch (err) {
-    console.error("Error accepting proposal or sending notification/email:", err.message);
+    console.error("Error updating proposal status:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 // Fetch all proposals made by the authenticated user (creator)
 router.get("/", authenticateToken, async (req, res) => {
@@ -192,7 +251,8 @@ router.get("/", authenticateToken, async (req, res) => {
       `SELECT p.*, o.title AS order_title, o.description AS order_description, o.budget AS order_budget
        FROM proposals p
        JOIN orders o ON p.order_id = o.id
-       WHERE p.creator_id = $1`,
+       WHERE p.creator_id = $1
+       ORDER BY p.created_at DESC`,
       [creator_id]
     );
 

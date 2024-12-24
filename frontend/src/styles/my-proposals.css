@@ -1,0 +1,98 @@
+/* General page styles */
+.my-proposals {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .my-proposals h2 {
+    font-size: 24px;
+    color: #4a90e2;
+    margin-bottom: 20px;
+  }
+  
+  .my-proposals ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .my-proposals li {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: left;
+  }
+  
+  .my-proposals li h3 {
+    margin: 0 0 10px;
+  }
+  
+  .my-proposals li p {
+    margin: 5px 0;
+  }
+  
+  /* Proposal item details */
+  .proposal-item {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .proposal-details {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  .proposal-status {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .proposal-status.accepted {
+    color: green;
+  }
+  
+  .proposal-status.pending {
+    color: #4a90e2;
+  }
+  
+  .proposal-status.waiting-for-payment {
+    color: #f39c12;
+  }
+  
+  /* Buttons */
+  .action-button {
+    background-color: #4a90e2;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  .action-button:hover {
+    background-color: #357ab8;
+  }
+  
+  .action-button.secondary {
+    background-color: #888;
+  }
+  
+  .action-button.secondary:hover {
+    background-color: #666;
+  }
+  
+  /* Empty state */
+  .no-proposals {
+    font-size: 18px;
+    color: #888;
+    margin-top: 20px;
+  }
+  
