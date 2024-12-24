@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: `"Reels Marketplace" <${process.env.EMAIL_FROM}>`, // Sender address
+      from: `"Make me reels" <${process.env.EMAIL_FROM}>`, // Sender address
       to, // Receiver address
       subject, // Subject line
       html, // HTML body

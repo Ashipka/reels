@@ -5,6 +5,7 @@ import "../styles/my-proposals.css";
 const MyProposalsPage = () => {
   const [proposals, setProposals] = useState([]);
   const [error, setError] = useState("");
+  const [updateCount, setUpdateCount] = useState(0); // Force re-render
   const token = localStorage.getItem("token");
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const MyProposalsPage = () => {
     } else {
       setError("You are not authenticated.");
     }
-  }, [BASE_URL, token]);
+  }, [BASE_URL, token, updateCount]);
 
   const handleChangeStatus = async (proposalId) => {
     try {
@@ -52,6 +53,7 @@ const MyProposalsPage = () => {
       }
 
       const updatedProposal = await response.json();
+      console.log("Updated Proposal:", updatedProposal);
 
       setProposals((prevProposals) =>
         prevProposals.map((proposal) =>
@@ -61,7 +63,7 @@ const MyProposalsPage = () => {
         )
       );
 
-      console.log("Updated proposals:", proposals);
+      setUpdateCount((count) => count + 1); // Force re-render
     } catch (err) {
       console.error(err);
       setError("Failed to update proposal status.");

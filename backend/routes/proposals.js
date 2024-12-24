@@ -60,7 +60,7 @@ router.post("/", authenticateToken, async (req, res) => {
       </ul>
       <p>Please log in to your account to view and manage this proposal.</p>
       <p>Best regards,</p>
-      <p><strong>Reels Marketplace Team</strong></p>
+      <p><strong>Make me reels Team</strong></p>
     `;
 
     await sendEmail(clientEmail, emailSubject, emailBody);
@@ -156,7 +156,7 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
         <p>Congratulations! Your proposal for the order: <strong>${orderTitle}</strong> has been accepted by the client.</p>
         <p>Please log in to your account to proceed with the next steps.</p>
         <p>Best regards,</p>
-        <p><strong>Reels Marketplace Team</strong></p>
+        <p><strong>Make me reels Team</strong></p>
       `;
 
       await sendEmail(creatorEmail, emailSubject, emailBody);
@@ -190,7 +190,7 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
         <p>The creator has updated the proposal for your order: <strong>${orderTitle}</strong> to "Waiting for Payment".</p>
         <p>Please log in to your account to proceed with the payment.</p>
         <p>Best regards,</p>
-        <p><strong>Reels Marketplace Team</strong></p>
+        <p><strong>Make me reels Team</strong></p>
       `;
 
       await sendEmail(clientEmail, emailSubject, emailBody);
@@ -329,7 +329,7 @@ router.put("/:proposalId", authenticateToken, async (req, res) => {
       </ul>
       <p>Please log in to your account to review the updated proposal.</p>
       <p>Best regards,</p>
-      <p><strong>Reels Marketplace Team</strong></p>
+      <p><strong>Make me reels Team</strong></p>
     `;
 
     await sendEmail(clientEmail, emailSubject, emailBody);

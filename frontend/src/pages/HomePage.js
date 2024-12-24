@@ -7,7 +7,7 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
-      <h1>Welcome to Reels Marketplace</h1>
+      <h1>Welcome to Make me reels</h1>
       <p>
         Looking to bring your brand to life with high-quality Instagram Reels?
         You're in the right place! Connect with talented creators who can make
