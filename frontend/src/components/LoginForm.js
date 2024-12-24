@@ -39,10 +39,14 @@ const LoginForm = () => {
         const { message } = await response.json();
         throw new Error(message);
       }
+
       const { token, name: userName, role: userRole, id: userId } = await response.json(); // Retrieve token, name, and role
       localStorage.setItem("token", token); // Save the JWT token in localStorage
-      setUser({ name: userName, role: userRole, id: userId}); // Update UserContext with the user's name and role
-      console.log(userId+ "!!!")
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ name: userName, role: userRole, id: userId })
+      ); // Save user details to localStorage
+      setUser({ name: userName, role: userRole, id: userId }); // Update UserContext with the user's name and role
       navigate(userRole === "client" ? "/dashboard" : "/creator-dashboard"); // Redirect based on role
     } catch (err) {
       setError(err.message); // Display error message
