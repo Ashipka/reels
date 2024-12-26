@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../App";
 import "../styles/view-orders.css";
 
 const ViewOrdersPage = () => {
+  const { user, setUser } = useContext(UserContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -12,12 +14,6 @@ const ViewOrdersPage = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!token) {
-        setError("You are not authenticated.");
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await fetch(`${BASE_URL}/orders`, {
           method: "GET",
@@ -27,6 +23,11 @@ const ViewOrdersPage = () => {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            setUser(null); // Clear user state in context
+            return navigate("/login");
+          }
           const { message } = await response.json();
           throw new Error(message);
         }

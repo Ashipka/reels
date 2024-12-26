@@ -2,11 +2,11 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../db'); // Import shared pool
+const authenticateToken = require('../middlewares/authenticateToken');
+require('dotenv').config();
 
 const router = express.Router();
 
-// Secret key for JWT
-const SECRET_KEY = 'your_secret_key';
 
 // Login route
 router.post("/login", async (req, res) => {
@@ -28,7 +28,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, name: user.name, role: user.role }, // Include role in JWT payload
-      "your_secret_key",
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -86,6 +86,10 @@ router.post('/register-creator', async (req, res) => {
     console.error('Error registering creator:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
+});
+
+router.get("/verify-token", authenticateToken, (req, res) => {
+  res.status(200).json({ message: "Token is valid" });
 });
 
 module.exports = router;
