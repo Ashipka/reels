@@ -35,8 +35,7 @@ router.post("/", authenticateToken, async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-
-  const { title: orderTitle, email: clientEmail, client_name: clientName } =
+    const { title: orderTitle, email: clientEmail, client_name: clientName, user_id: clientId } =
       orderResult.rows[0];
 
     // Create a notification for the client
@@ -44,7 +43,7 @@ router.post("/", authenticateToken, async (req, res) => {
     await pool.query(
       `INSERT INTO notifications (user_id, message)
        VALUES ($1, $2)`,
-      [orderResult.rows[0].user_id, notificationMessage]
+      [clientId, notificationMessage]
     );
 
     // Send an email to the client
@@ -111,12 +110,15 @@ router.get("/order/:orderId", authenticateToken, async (req, res) => {
   }
 });
 
+// Атомарное обновление статуса (Router)
 router.put("/:proposalId/status", authenticateToken, async (req, res) => {
   const { proposalId } = req.params;
-  const { status } = req.body; // New status to set
+  const { status } = req.body;
   const userId = req.user.id;
 
-  // Define valid statuses and their corresponding actions
+  console.log("Received status:", status);
+
+  // Набор возможных действий при установке того или иного статуса
   const validStatuses = {
     "Accepted": async (proposal, orderId) => {
       // Update the order's status to 'In Progress'
@@ -162,7 +164,7 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
       await sendEmail(creatorEmail, emailSubject, emailBody);
     },
     "Waiting for Payment": async (proposal) => {
-      // Notify the client that the creator has marked the proposal as "Waiting for Payment"
+      // Notify the client
       const clientResult = await pool.query(
         `SELECT u.email, u.name AS client_name, o.title AS order_title
          FROM users u
@@ -195,44 +197,81 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
 
       await sendEmail(clientEmail, emailSubject, emailBody);
     },
+    "Payed": async (proposal) => {
+      // Notify the creator that the payment has been received
+      const creatorResult = await pool.query(
+        `SELECT u.email, u.name AS creator_name, o.title AS order_title
+         FROM users u
+         JOIN proposals p ON u.id = p.creator_id
+         JOIN orders o ON p.order_id = o.id
+         WHERE p.id = $1`,
+        [proposalId]
+      );
+
+      if (creatorResult.rows.length === 0) {
+        throw new Error("Creator not found");
+      }
+
+      const { email: creatorEmail, creator_name: creatorName, order_title: orderTitle } = creatorResult.rows[0];
+
+      const notificationMessage = `The payment for your proposal for the order "${orderTitle}" has been received.`;
+      await pool.query(
+        `INSERT INTO notifications (user_id, message)
+         VALUES ($1, $2)`,
+        [proposal.creator_id, notificationMessage]
+      );
+
+      const emailSubject = `Payment Received for Proposal for "${orderTitle}"`;
+      const emailBody = `
+        <p>Dear ${creatorName},</p>
+        <p>We are happy to inform you that the payment for your proposal for the order: <strong>${orderTitle}</strong> has been received.</p>
+        <p>Please log in to your account to proceed with delivering the order.</p>
+        <p>Best regards,</p>
+        <p><strong>Make me reels Team</strong></p>
+      `;
+
+      await sendEmail(creatorEmail, emailSubject, emailBody);
+    },
   };
 
   try {
-    // Check if the status is valid
+    // 1) Проверяем, валиден ли статус
     if (!Object.keys(validStatuses).includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    // Fetch the proposal and ensure it belongs to the user
-    const proposalResult = await pool.query(
-      `SELECT * FROM proposals WHERE id = $1`,
-      [proposalId]
+    // 2) Атомарное обновление: обновляем статус только если он отличается
+    const result = await pool.query(
+      `UPDATE proposals
+       SET status = $1
+       WHERE id = $2
+         AND status <> $1
+       RETURNING *`,
+      [status, proposalId]
     );
 
-    if (proposalResult.rows.length === 0) {
-      return res.status(404).json({ message: "Proposal not found" });
+    // Если rowCount = 0, значит статус уже был таким
+    if (result.rowCount === 0) {
+      return res.status(200).json({ message: "Proposal already in the desired status" });
     }
 
-    const proposal = proposalResult.rows[0];
+    const updatedProposal = result.rows[0];
 
-    // Check if the user is authorized to update the status
-    const isCreator = proposal.creator_id === userId;
-    const isClient = (await pool.query(`SELECT id FROM orders WHERE id = $1 AND user_id = $2`, [proposal.order_id, userId])).rows.length > 0;
+    // 3) Авторизация: убеждаемся, что создатель или клиент имеет право
+    const isCreator = updatedProposal.creator_id === userId;
+    // Проверяем, принадлежит ли заказ клиенту
+    const clientCheck = await pool.query(
+      `SELECT id FROM orders WHERE id = $1 AND user_id = $2`,
+      [updatedProposal.order_id, userId]
+    );
+    const isClient = clientCheck.rows.length > 0;
 
     if (!isCreator && !isClient) {
       return res.status(403).json({ message: "Unauthorized action" });
     }
 
-    // Update the proposal's status
-    await pool.query(
-      `UPDATE proposals
-       SET status = $1
-       WHERE id = $2`,
-      [status, proposalId]
-    );
-
-    // Execute the specific action for the new status
-    await validStatuses[status](proposal, proposal.order_id);
+    // 4) Вызываем экшен для нового статуса
+    await validStatuses[status](updatedProposal, updatedProposal.order_id);
 
     res.status(200).json({ message: `Proposal status updated to "${status}" successfully` });
   } catch (err) {
@@ -240,7 +279,6 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 
 // Fetch all proposals made by the authenticated user (creator)
 router.get("/", authenticateToken, async (req, res) => {
@@ -284,7 +322,9 @@ router.put("/:proposalId", authenticateToken, async (req, res) => {
     );
 
     if (proposalCheck.rows.length === 0) {
-      return res.status(404).json({ message: "Proposal not found or unauthorized" });
+      return res
+        .status(404)
+        .json({ message: "Proposal not found or unauthorized" });
     }
 
     const proposalData = proposalCheck.rows[0];
@@ -343,4 +383,5 @@ router.put("/:proposalId", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 module.exports = router;

@@ -21,7 +21,7 @@ router.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/payment-success`,
+      success_url: `${process.env.FRONTEND_URL}/payment-success?proposalId=${proposalId}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
       automatic_tax: {enabled: true},
     });
