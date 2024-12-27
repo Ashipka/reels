@@ -15,6 +15,7 @@ import ProposalsPage from "./pages/ProposalsPage";
 import MyProposalsPage from "./pages/MyProposalsPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
+import UploadProjectPage from "./pages/UploadProjectPage";
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -119,6 +120,13 @@ function App() {
                     <MyProposalsPage />
                   </ProtectedRoute>
                 }
+              />
+              <Route 
+                path="/upload-project/:proposalId" 
+                element={
+                  <ProtectedRoute>
+                    <UploadProjectPage />
+                  </ProtectedRoute>} 
               />
             </Routes>
           </div>
