@@ -95,9 +95,14 @@ const MyProposalsPage = () => {
                   Mark as Waiting for Payment
                 </button>
               )}
-              {proposal.status === "Payed" && (
+              {proposal.status === "Payed" && !proposal.project_id && (
                 <button className="action-button" onClick={() => navigate(`/upload-project/${proposal.id}`)}>
                   Upload Project
+                </button>
+              )}
+              {proposal.project_id && (
+                <button className="action-button" onClick={() => navigate(`/discussion/${proposal.project_id}`)}>
+                  View Discussion
                 </button>
               )}
             </li>

@@ -6,6 +6,8 @@ const portfolioRoutes = require("./routes/portfolio");
 const proposalRoutes = require("./routes/proposals");
 const stripeRoutes = require("./routes/stripe");
 const projects = require("./routes/projects");
+const improvements = require("./routes/improvements");
+
 
 const app = express();
 const cors = require('cors');
@@ -20,7 +22,7 @@ app.use("/portfolio", portfolioRoutes); // Подключение портфол
 app.use("/proposals", proposalRoutes); // Attach the proposals route
 app.use("/api/stripe", stripeRoutes);
 app.use("/projects", projects);
-
+app.use("/improvements", improvements);
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

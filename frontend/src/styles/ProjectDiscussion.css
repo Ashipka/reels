@@ -1,0 +1,196 @@
+/* General Container */
+.project-discussion-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.project-discussion-container h2 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Tabs Container */
+.tabs-container {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 0 0 20px 0;
+}
+
+.tab-buttons {
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #ddd;
+  background-color: #f7f7f7;
+  padding: 0;
+  margin: 0;
+}
+
+.tab-button {
+  flex: 1;
+  text-align: center;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  transition: background-color 0.2s ease;
+}
+
+.tab-button:hover {
+  background-color: #eee;
+}
+
+.tab-button.active {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-bottom: none;
+}
+
+/* Tab Content */
+.tab-content {
+  padding: 16px;
+}
+
+/* Next Steps Section */
+.complete-button {
+  display: inline-block;
+  background-color: #6FCF97;
+  color: #fff;
+  font-size: 1rem;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.complete-button:hover {
+  background-color: #53b77d;
+}
+
+/* Improvements / Comments Section */
+.improvements-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #f1f1f1;
+}
+
+.left-bubble {
+  align-self: flex-start;
+  background-color: #f1f1f1;
+}
+
+.right-bubble {
+  align-self: flex-end;
+  background-color: #dfffd6;
+}
+
+.improvements-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.improvements-input textarea {
+  width: 100%;
+  font-size: 1rem;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  line-height: 1.5;
+  min-height: 60px;
+  box-sizing: border-box;
+}
+
+.improvements-input textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+.send-button {
+  align-self: flex-start;
+  background-color: #4a90e2;
+  color: #fff;
+  font-size: 1rem;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: #357ab8;
+}
+
+/* Responsive Design */
+
+/* Mobile (iPhone) Adjustments */
+@media (max-width: 768px) {
+  .tabs-container {
+    padding: 10px;
+  }
+
+  .chat-message {
+    max-width: 90%;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .improvements-input textarea {
+    min-height: 100px; /* Increased height for better typing experience */
+    font-size: 1rem; /* Adjust font size for readability */
+    padding: 10px;
+  }
+
+  .send-button {
+    width: 100%; /* Button spans full width on mobile */
+  }
+
+  .tab-buttons {
+    flex-direction: row;
+    justify-content: space-between; /* Ensure buttons are evenly spaced */
+  }
+
+  .tab-button {
+    flex: none;
+    width: 50%;
+    padding: 12px 0;
+    font-size: 1rem;
+  }
+}
+
+/* Desktop Adjustments */
+@media (min-width: 1024px) {
+  .tabs-container {
+    padding: 20px;
+  }
+
+  .improvements-input textarea {
+    min-height: 60px;
+  }
+
+  .chat-message {
+    max-width: 50%;
+  }
+}

@@ -16,6 +16,7 @@ import MyProposalsPage from "./pages/MyProposalsPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import UploadProjectPage from "./pages/UploadProjectPage";
+import ProjectDiscussionPage from "./pages/ProjectDiscussionPage";
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -128,6 +129,14 @@ function App() {
                     <UploadProjectPage />
                   </ProtectedRoute>} 
               />
+              <Route
+                path="/discussion/:projectId"
+                element={
+                  <ProtectedRoute>
+                    <ProjectDiscussionPage />
+                  </ProtectedRoute>
+              }
+            />
             </Routes>
           </div>
           <Footer />

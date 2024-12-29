@@ -163,6 +163,13 @@ const ProposalsPage = () => {
                     </button>
                     )
                 }
+                {proposal.status === "Project Ready for Confirmation" && (
+                  <button 
+                    className="action-button"
+                    onClick={() => navigate(`/discussion/${proposal.project_id}`)}>
+                    View project
+                  </button>
+                )}
               </li>
             ))}
           </ul>
