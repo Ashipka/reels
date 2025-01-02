@@ -121,10 +121,24 @@ const ProjectDiscussionPage = () => {
             <strong>Description:</strong> {project.description}
           </p>
           <p>
-            <strong>File Links:</strong>{" "}
-            {Array.isArray(project.file_links)
-              ? project.file_links.join(", ")
-              : project.file_links}
+            <strong>File Links:</strong>
+            <br/>
+            <br/>
+            {Array.isArray(project.file_links) && project.file_links.length > 0 ? (
+                project.file_links.map((link, index) => (
+                  <a
+                    key={index}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ marginRight: "10px", display: "inline-block" }}
+                  >
+                    {link}
+                  </a>
+                ))
+              ) : (
+                "No links available"
+              )}
           </p>
           {userRole === "creator" &&
             (project.proposal_status.toLowerCase() === "need improvements" ||

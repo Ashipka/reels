@@ -216,3 +216,14 @@
     max-width: 50%;
   }
 }
+
+.project-info a {
+  display: block;
+  margin-bottom: 8px;
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.project-info a:hover {
+  text-decoration: underline;
+}
