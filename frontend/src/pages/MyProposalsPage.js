@@ -101,7 +101,7 @@ const MyProposalsPage = () => {
                 </button>
               )}
               {proposal.project_id && (
-                <button className="action-button" onClick={() => navigate(`/discussion/${proposal.project_id}`)}>
+                <button className="action-button" onClick={() => navigate(`/discussion/${proposal.id}`)}>
                   View Discussion
                 </button>
               )}

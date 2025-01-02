@@ -93,11 +93,11 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 /**
- * 2) GET /projects/:projectId
+ * 2) GET /projects/:proposalId
  *    Fetch project data for reading final files or discussion
  */
-router.get("/:projectId", authenticateToken, async (req, res) => {
-  const { projectId } = req.params;
+router.get("/:proposalId", authenticateToken, async (req, res) => {
+  const { proposalId } = req.params;
 
   try {
     const projectResult = await pool.query(
@@ -105,8 +105,8 @@ router.get("/:projectId", authenticateToken, async (req, res) => {
        FROM projects p
        JOIN proposals pr ON p.proposal_id = pr.id
        JOIN orders o ON pr.order_id = o.id
-       WHERE p.id = $1`,
-      [projectId]
+       WHERE pr.id = $1`,
+      [proposalId]
     );
 
     if (projectResult.rows.length === 0) {
@@ -126,22 +126,23 @@ router.get("/:projectId", authenticateToken, async (req, res) => {
 });
 
 /**
- * 3) PUT /projects/:projectId
+ * 3) PUT /projects/:proposalId
  *    (OPTIONAL) Update existing project if you want the creator to upload new version
  */
-router.put("/:projectId", authenticateToken, async (req, res) => {
-  const { projectId } = req.params;
+router.put("/:proposalId", authenticateToken, async (req, res) => {
+  const { proposalId } = req.params;
   const { description, file_links } = req.body;
   const userId = req.user.id;
 
   try {
     // 1. Check ownership
     const projectCheck = await pool.query(
-      `SELECT p.*, pr.creator_id, pr.id AS proposal_id
+      `SELECT p.*, pr.creator_id, pr.id AS proposal_id, o.title AS order_title, o.user_id AS client_id
        FROM projects p
        JOIN proposals pr ON p.proposal_id = pr.id
-       WHERE p.id = $1`,
-      [projectId]
+       JOIN orders o ON pr.order_id = o.id
+       WHERE pr.id = $1`,
+      [proposalId]
     );
     if (projectCheck.rows.length === 0) {
       return res.status(404).json({ message: "Project not found" });
@@ -157,9 +158,9 @@ router.put("/:projectId", authenticateToken, async (req, res) => {
       `UPDATE projects
        SET description = $1,
            file_links = $2
-       WHERE id = $3
+       WHERE proposal_id = $3
        RETURNING *`,
-      [description || projectData.description, file_links || projectData.file_links, projectId]
+      [description || projectData.description, file_links || projectData.file_links, proposalId]
     );
     const updatedProject = updateResult.rows[0];
 
@@ -172,7 +173,28 @@ router.put("/:projectId", authenticateToken, async (req, res) => {
     );
 
     // 4. Notify client (optional)
-    // ... same logic: insert into notifications, sendEmail, etc.
+    const notificationMessage = `Creator updated final project files for your order: "${projectData.order_title}".`;
+    await pool.query(
+      `INSERT INTO notifications (user_id, message)
+       VALUES ($1, $2)`,
+      [projectData.client_id, notificationMessage]
+    );
+
+    // 5. Optionally, send email to client
+    const clientEmailResult = await pool.query(
+      `SELECT email, name FROM users WHERE id = $1`,
+      [projectData.client_id]
+    );
+    const { email: clientEmail, name: clientName } = clientEmailResult.rows[0];
+
+    const emailSubject = `Project Files Updated: "${projectData.order_title}"`;
+    const emailBody = `
+      <p>Dear ${clientName},</p>
+      <p>The creator has uploaded project files for your order: <strong>${projectData.order_title}</strong>.</p>
+      <p>Please log in to review the files and confirm or request changes.</p>
+      <p>Best regards,<br><strong>Make me reels Team</strong></p>
+    `;
+    await sendEmail(clientEmail, emailSubject, emailBody);
 
     res.status(200).json({ project: updatedProject, message: "Project updated successfully" });
   } catch (err) {

@@ -130,7 +130,7 @@ function App() {
                   </ProtectedRoute>} 
               />
               <Route
-                path="/discussion/:projectId"
+                path="/discussion/:proposalId"
                 element={
                   <ProtectedRoute>
                     <ProjectDiscussionPage />

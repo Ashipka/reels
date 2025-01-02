@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../styles/ProjectDiscussion.css";
 
 const ProjectDiscussionPage = () => {
-  const { projectId } = useParams();
+  const { proposalId } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [improvements, setImprovements] = useState([]);
@@ -11,14 +11,16 @@ const ProjectDiscussionPage = () => {
   const [activeTab, setActiveTab] = useState("steps"); // "steps" or "comments"
 
   const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userRole = user?.role;
 
   useEffect(() => {
     const BASE_URL = process.env.REACT_APP_BASE_URL;
 
     const fetchData = async () => {
       try {
-        // 1) Fetch project
-        const projRes = await fetch(`${BASE_URL}/projects/${projectId}`, {
+        // Fetch project
+        const projRes = await fetch(`${BASE_URL}/projects/${proposalId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!projRes.ok) {
@@ -28,9 +30,9 @@ const ProjectDiscussionPage = () => {
         const projData = await projRes.json();
         setProject(projData.project);
 
-        // 2) Fetch improvements
+        // Fetch improvements
         const impRes = await fetch(
-          `${BASE_URL}/improvements/project/${projectId}`,
+          `${BASE_URL}/improvements/project/${projData.project.id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!impRes.ok) {
@@ -44,10 +46,10 @@ const ProjectDiscussionPage = () => {
       }
     };
 
-    if (projectId && token) {
+    if (proposalId && token) {
       fetchData();
     }
-  }, [projectId, token]);
+  }, [proposalId, token]);
 
   const handleSubmitImprovement = async () => {
     try {
@@ -59,7 +61,7 @@ const ProjectDiscussionPage = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          project_id: projectId,
+          project_id: project.id,
           message: newMessage,
         }),
       });
@@ -105,6 +107,10 @@ const ProjectDiscussionPage = () => {
     }
   };
 
+  const handleEditProject = () => {
+    navigate(`/upload-project/${proposalId}`);
+  };
+
   return (
     <div className="project-discussion-container">
       <h2>Project Discussion</h2>
@@ -120,6 +126,16 @@ const ProjectDiscussionPage = () => {
               ? project.file_links.join(", ")
               : project.file_links}
           </p>
+          {userRole === "creator" &&
+            (project.proposal_status.toLowerCase() === "need improvements" ||
+              project.proposal_status.toLowerCase() === "project ready for confirmation") && (
+              <button
+                onClick={handleEditProject}
+                className="edit-project-button"
+              >
+                Update Project
+              </button>
+            )}
         </div>
       )}
 
@@ -147,14 +163,15 @@ const ProjectDiscussionPage = () => {
             <div className="tab-steps">
               <h3>Next Steps</h3>
               <p>
-                If you are happy with the delivered project, click <strong>Complete</strong>.
+                If you are happy with the delivered project, click{" "}
+                <strong>Complete</strong>.
               </p>
               <button onClick={handleComplete} className="complete-button">
                 Complete
               </button>
               <p>
-                Otherwise, switch to the <strong>Improvements / Comments</strong> tab
-                to request changes.
+                Otherwise, switch to the{" "}
+                <strong>Improvements / Comments</strong> tab to request changes.
               </p>
             </div>
           )}
@@ -163,25 +180,14 @@ const ProjectDiscussionPage = () => {
             <div className="tab-comments">
               <h3>Improvements / Comments</h3>
               <ul className="improvements-list">
-              {improvements.map((imp) => {
-                // Example logic for left vs right
-                // If you have project?.creator_id and order?.user_id, do:
-                const isCreatorMessage = (imp.author_id === project?.creator_id);
-
-                // Choose the class
-                const bubbleClass = isCreatorMessage ? "right-bubble" : "left-bubble";
-
-                return (
-                  <li key={imp.id} className={`chat-message ${bubbleClass}`}>
-                    <p className="author">
-                      {imp.author_name || "Unknown"}:
-                    </p>
+                {improvements.map((imp) => (
+                  <li key={imp.id} className="chat-message">
+                    <p className="author">{imp.author_name || "Unknown"}:</p>
                     <p className="message-text">{imp.message}</p>
                     <small>Created: {imp.created_at}</small>
                   </li>
-                );
-              })}
-            </ul>
+                ))}
+              </ul>
 
               <div className="improvements-input">
                 <textarea
@@ -190,7 +196,10 @@ const ProjectDiscussionPage = () => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Write your improvement request or comment..."
                 />
-                <button onClick={handleSubmitImprovement} className="send-button">
+                <button
+                  onClick={handleSubmitImprovement}
+                  className="send-button"
+                >
                   Send Request
                 </button>
               </div>
