@@ -8,11 +8,11 @@ const ProjectDiscussionPage = () => {
   const [project, setProject] = useState(null);
   const [improvements, setImprovements] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [activeTab, setActiveTab] = useState("steps"); // "steps" or "comments"
-
+  
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userRole = user?.role;
+  const [activeTab, setActiveTab] = useState(userRole === "client" ? "steps" : "comments");
 
   useEffect(() => {
     const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -157,12 +157,14 @@ const ProjectDiscussionPage = () => {
       <div className="tabs-container">
         {/* Tabs Navigation */}
         <div className="tab-buttons">
-          <button
-            className={`tab-button ${activeTab === "steps" ? "active" : ""}`}
-            onClick={() => setActiveTab("steps")}
-          >
-            Next Steps
-          </button>
+          {userRole === "client" && (
+            <button
+              className={`tab-button ${activeTab === "steps" ? "active" : ""}`}
+              onClick={() => setActiveTab("steps")}
+            >
+              Next Steps
+            </button>
+            )}
           <button
             className={`tab-button ${activeTab === "comments" ? "active" : ""}`}
             onClick={() => setActiveTab("comments")}
@@ -173,7 +175,7 @@ const ProjectDiscussionPage = () => {
 
         {/* Tab Content */}
         <div className="tab-content">
-          {activeTab === "steps" && (
+          {activeTab === "steps" && userRole === "client" && (
             <div className="tab-steps">
               <h3>Next Steps</h3>
               <p>
