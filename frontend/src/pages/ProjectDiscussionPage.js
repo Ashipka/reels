@@ -180,13 +180,17 @@ const ProjectDiscussionPage = () => {
             <div className="tab-comments">
               <h3>Improvements / Comments</h3>
               <ul className="improvements-list">
-                {improvements.map((imp) => (
-                  <li key={imp.id} className="chat-message">
-                    <p className="author">{imp.author_name || "Unknown"}:</p>
-                    <p className="message-text">{imp.message}</p>
-                    <small>Created: {imp.created_at}</small>
-                  </li>
-                ))}
+                {improvements.map((imp) => {
+                  const isCreatorMessage = imp.author_id === project?.creator_id;
+
+                  return (
+                    <li key={imp.id} className={`chat-message ${isCreatorMessage ? "right-bubble" : "left-bubble"}`}>
+                      <p className="author">{imp.author_name || "Unknown"}:</p>
+                      <p className="message-text">{imp.message}</p>
+                      <small>Created: {imp.created_at}</small>
+                    </li>
+                  );
+                })}
               </ul>
 
               <div className="improvements-input">

@@ -75,6 +75,27 @@
   background-color: #53b77d;
 }
 
+.edit-project-button {
+  background-color: #4a90e2; /* Green background */
+  color: white; /* White text */
+  font-size: 1rem; /* Font size */
+  padding: 10px 16px; /* Padding */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  margin-bottom: 20px; /* Space below the button */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.edit-project-button:hover {
+  background-color: #4a90e2; /* Darker green on hover */
+}
+
+.edit-project-button:focus {
+  outline: none; /* Remove focus outline */
+  box-shadow: 0 0 4px #4a90e2; /* Add subtle glow on focus */
+}
+
 /* Improvements / Comments Section */
 .improvements-list {
   list-style: none;
@@ -85,6 +106,7 @@
   gap: 10px;
 }
 
+/* Chat Message Bubble */
 .chat-message {
   padding: 10px 14px;
   border-radius: 8px;
@@ -92,14 +114,14 @@
   background-color: #f1f1f1;
 }
 
+/* Client Messages */
 .left-bubble {
-  align-self: flex-start;
   background-color: #f1f1f1;
 }
 
+/* Creator Messages */
 .right-bubble {
-  align-self: flex-end;
-  background-color: #dfffd6;
+  background-color: #dfffd6; /* Light green for creator's messages */
 }
 
 .improvements-input {
