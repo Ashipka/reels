@@ -82,8 +82,7 @@ router.post("/register", async (req, res) => {
 
     await sendEmail(email, emailSubject, emailBody);
 
-    // Respond with the newly created user
-    res.status(201).json(result.rows[0]);
+    res.status(200).json({ message: "Registration successful! Please check your email to activate your account." });
   } catch (err) {
     console.error("Error during registration:", err);
 
