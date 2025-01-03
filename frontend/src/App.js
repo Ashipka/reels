@@ -28,6 +28,7 @@ import "./styles/create-order.css";
 import "./styles/view-orders.css";
 import "./styles/portfolio.css";
 import "./styles/ExploreOpportunities.css";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 // Create User Context
 export const UserContext = createContext();
@@ -57,6 +58,7 @@ function App() {
               <Route path="/login" element={<LoginForm />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
               {/* Protected Routes */}
               <Route
                 path="/dashboard"
