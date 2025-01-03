@@ -108,7 +108,7 @@ router.get("/verify-email", async (req, res) => {
 
     // Mark user as verified
     await pool.query(
-      "UPDATE users SET verified = true, verification_token = null WHERE id = $1",
+      "UPDATE users SET verified = true WHERE id = $1",
       [user.rows[0].id]
     );
 
