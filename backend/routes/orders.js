@@ -79,4 +79,38 @@ router.get("/open", authenticateToken, async (req, res) => {
   }
 });
 
+// Get a specific order by ID and optionally a proposal by ID
+router.get("/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params; // Order ID
+  const { proposalId } = req.query; // Optional Proposal ID
+
+  try {
+    // Fetch the order
+    const orderResult = await pool.query(`SELECT * FROM orders WHERE id = $1`, [id]);
+
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+
+    const order = orderResult.rows[0];
+    let proposal = null;
+
+    // If proposalId is provided, fetch the proposal
+    if (proposalId) {
+      const proposalResult = await pool.query(`SELECT * FROM proposals WHERE id = $1`, [proposalId]);
+
+      if (proposalResult.rows.length === 0) {
+        return res.status(404).json({ message: "Proposal not found." });
+      }
+
+      proposal = proposalResult.rows[0];
+    }
+
+    res.status(200).json({ order, proposal });
+  } catch (err) {
+    console.error("Error fetching order and proposal:", err.message);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = router;

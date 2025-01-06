@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ProposalForm from "../components/ProposalForm";
+import { useLocation } from "react-router-dom";
 
 const ExploreOpportunities = () => {
   const [orders, setOrders] = useState([]);
@@ -8,7 +10,22 @@ const ExploreOpportunities = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedProposal, setSelectedProposal] = useState(null); // The proposal to edit
   const [successMessage, setSuccessMessage] = useState("");
+  const location = useLocation();
+
+
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.message) {
+        setSuccessMessage(location.state.message);
+      }
+      if (location.state.error) {
+        setError(location.state.error);
+      }
+    }
+  }, [location.state]);
+
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -80,7 +97,6 @@ const ExploreOpportunities = () => {
       });
       const updatedData = await updatedRes.json();
       setUserProposals(updatedData);
-
     } catch (err) {
       console.error("Error submitting proposal:", err.message);
       setError("Failed to submit proposal. Please try again.");
@@ -94,8 +110,11 @@ const ExploreOpportunities = () => {
 
   const startEditingProposal = (order) => {
     const userProposal = userProposals.find((p) => p.order_id === order.id);
-    setSelectedOrder(order);
-    setSelectedProposal(userProposal);
+    navigate(`/proposal-form?orderId=${order.id}&proposalId=${userProposal?.id || ""}`);
+  };
+
+  const navigateToProposalForm = (order) => {
+    navigate(`/proposal-form?orderId=${order.id}`);
   };
 
   return (
@@ -105,50 +124,57 @@ const ExploreOpportunities = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {selectedOrder ? (
-  <ProposalForm
-    order={selectedOrder}
-    proposal={selectedProposal} // Pass the existing proposal here
-    onSave={handleProposalSubmit}
-    onCancel={handleCancel}
-  />
-) : orders.length === 0 ? (
-  <p>No open orders available.</p>
-) : (
-  <ul className="orders-list">
-    {orders.map((order) => {
-      const userProposal = userProposals.find((p) => p.order_id === order.id);
+        <ProposalForm
+          order={selectedOrder}
+          proposal={selectedProposal} // Pass the existing proposal here
+          onSave={handleProposalSubmit}
+          onCancel={handleCancel}
+        />
+      ) : orders.length === 0 ? (
+        <p>No open orders available.</p>
+      ) : (
+        <ul className="orders-list">
+          {orders.map((order) => {
+            const userProposal = userProposals.find((p) => p.order_id === order.id);
 
-      return (
-        <li key={order.id} className="order-item">
-          <div className="order-info">
-            <h3>{order.title}</h3>
-            <p>{order.description}</p>
-            <p><strong>Budget:</strong> ${order.budget}</p>
-          </div>
+            return (
+              <li key={order.id} className="order-item">
+                <div className="order-info">
+                  <h3>{order.title}</h3>
+                  <p>{order.description}</p>
+                  <p>
+                    <strong>Budget:</strong> ${order.budget}
+                  </p>
+                </div>
 
-          {userProposal ? (
-            <>
-              <hr />
-              <div className="proposal-info">
-                <p><strong>Offer:</strong> {userProposal.message}</p>
-                <p><strong>Proposed Amount:</strong> ${userProposal.proposed_price}</p>
-                <p><strong>Delivery Days:</strong> {userProposal.delivery_days}</p>
-                <button onClick={() => startEditingProposal(order)}>Edit Proposal</button>
-              </div>
-            </>
-          ) : (
-            <button onClick={() => {
-              setSelectedOrder(order);
-              setSelectedProposal(null);
-            }}>
-              Make a Proposal
-            </button>
-          )}
-        </li>
-      );
-    })}
-  </ul>
-)}
+                {userProposal ? (
+                  <>
+                    <hr />
+                    <div className="proposal-info">
+                      <p>
+                        <strong>Offer:</strong> {userProposal.message}
+                      </p>
+                      <p>
+                        <strong>Proposed Amount:</strong> ${userProposal.proposed_price}
+                      </p>
+                      <p>
+                        <strong>Delivery Days:</strong> {userProposal.delivery_days}
+                      </p>
+                      <button onClick={() => startEditingProposal(order)}>
+                        Edit Proposal
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button onClick={() => navigateToProposalForm(order)}>
+                    Make a Proposal
+                  </button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 };

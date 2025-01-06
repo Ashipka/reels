@@ -17,6 +17,8 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import UploadProjectPage from "./pages/UploadProjectPage";
 import ProjectDiscussionPage from "./pages/ProjectDiscussionPage";
+import ProposalForm from "./components/ProposalForm";
+
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -45,6 +47,38 @@ function App() {
       setUser(JSON.parse(storedUser));
     }
   }, []);
+
+  const handleProposalSave = async (proposal, navigate) => {
+    try {
+      const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+      const method = proposal.id ? "PUT" : "POST";
+      const url = proposal.id
+        ? `${BASE_URL}/proposals/${proposal.id}`
+        : `${BASE_URL}/proposals`;
+  
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(proposal),
+      });
+  
+      if (!response.ok) {
+        const { message } = await response.json();
+        throw new Error(message);
+      }
+  
+      // Redirect with a success message
+      navigate("/opportunities", { state: { message: "Proposal submitted successfully!" } });
+    } catch (err) {
+      console.error("Error saving proposal:", err.message);
+  
+      // Redirect with an error message
+      navigate("/opportunities", { state: { error: "Failed to submit proposal. Please try again." } });
+    }
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -136,6 +170,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProjectDiscussionPage />
+                  </ProtectedRoute>
+              }
+            />
+            <Route
+                path="/proposal-form"
+                element={
+                  <ProtectedRoute>
+                    <ProposalForm onSave={handleProposalSave} />
                   </ProtectedRoute>
               }
             />
