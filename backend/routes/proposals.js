@@ -3,6 +3,9 @@ const router = express.Router();
 const authenticateToken = require("../middlewares/authenticateToken");
 const pool = require("../db");
 const sendEmail = require("../utils/sendEmail"); // Utility to send emails
+require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 
 // Creator submits a proposal
 router.post("/", authenticateToken, async (req, res) => {
@@ -255,26 +258,17 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
 
     // ====== NEW COMPLETE LOGIC ======
     "Complete": async (proposal) => {
-      // 1) Update the order status => 'Complete'
       await pool.query(
-        `UPDATE orders
-         SET status = 'Complete'
-         WHERE id = $1`,
+        `UPDATE orders SET status = 'Complete' WHERE id = $1`,
         [proposal.order_id]
       );
-
-      // 2) Pay the creator the full contract sum minus commission
-      //    For example, 20% commission => 80% to creator
-      const commissionRate = 0.2; // 20%
+      const commissionRate = 0.2;
       const creatorPayout = parseFloat(proposal.proposed_price) * (1 - commissionRate);
       console.log(
         `Paying creator $${creatorPayout.toFixed(2)} (commission ${commissionRate * 100}%)`
       );
-      // In real code, you'd integrate with Stripe or another payment method to send actual payment.
-
-      // 3) Notify the creator about project completion
       const creatorResult = await pool.query(
-        `SELECT u.email, u.name AS creator_name, o.title AS order_title
+        `SELECT u.email, u.name AS creator_name, u.stripe_account_id, o.title AS order_title
          FROM users u
          JOIN proposals p ON u.id = p.creator_id
          JOIN orders o ON p.order_id = o.id
@@ -289,26 +283,40 @@ router.put("/:proposalId/status", authenticateToken, async (req, res) => {
       const {
         email: creatorEmail,
         creator_name: creatorName,
+        stripe_account_id: stripeAccountId,
         order_title: orderTitle,
       } = creatorResult.rows[0];
 
-      const notificationMessage = `Your proposal for the order "${orderTitle}" is now complete! Payment has been issued.`;
+      // Perform Stripe payment
+      try {
+        const transfer = await stripe.transfers.create({
+          amount: Math.round(creatorPayout * 100), // Convert to cents
+          currency: "pln",
+          destination: stripeAccountId,
+          description: `Payment for order: ${orderTitle}`,
+        });
+
+        console.log("Stripe transfer successful:", transfer.id);
+      } catch (err) {
+        console.error("Stripe payment error:", err.message);
+        throw new Error("Failed to process creator payment.");
+      }
+
+      const notificationMessage = `Your proposal for the order \"${orderTitle}\" is now complete! Payment has been issued.`;
       await pool.query(
-        `INSERT INTO notifications (user_id, message)
-         VALUES ($1, $2)`,
+        `INSERT INTO notifications (user_id, message) VALUES ($1, $2)`,
         [proposal.creator_id, notificationMessage]
       );
 
-      const emailSubject = `Project Completed: "${orderTitle}"`;
+      const emailSubject = `Project Completed: \"${orderTitle}\"`;
       const emailBody = `
         <p>Dear ${creatorName},</p>
         <p>Congratulations! The client has marked the project as complete for the order: <strong>${orderTitle}</strong>.</p>
         <p>Your payment of <strong>$${creatorPayout.toFixed(
           2
-        )}</strong> (minus commission) has been processed.</p>
+        )}</strong> (minus commission) has been processed to your Stripe account.</p>
         <p>Thank you for using our platform!</p>
-        <p>Best regards,</p>
-        <p><strong>Make me reels Team</strong></p>
+        <p>Best regards,<br><strong>Make me reels Team</strong></p>
       `;
 
       await sendEmail(creatorEmail, emailSubject, emailBody);
