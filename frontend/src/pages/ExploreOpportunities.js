@@ -30,7 +30,8 @@ const ExploreOpportunities = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:5000/orders/open", {
+        const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+        const response = await fetch(`${BASE_URL}/orders/open`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Failed to fetch open orders");
@@ -49,7 +50,8 @@ const ExploreOpportunities = () => {
   useEffect(() => {
     const fetchUserProposals = async () => {
       try {
-        const response = await fetch("http://localhost:5000/proposals", {
+        const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+        const response = await fetch(`${BASE_URL}/proposals`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
@@ -69,10 +71,11 @@ const ExploreOpportunities = () => {
 
   const handleProposalSubmit = async (proposal) => {
     try {
+      const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
       const method = proposal.id ? "PUT" : "POST";
       const url = proposal.id
-        ? `http://localhost:5000/proposals/${proposal.id}`
-        : "http://localhost:5000/proposals";
+        ? `${BASE_URL}/proposals/${proposal.id}`
+        : `${BASE_URL}/proposals`;
       const response = await fetch(url, {
         method,
         headers: {
@@ -91,8 +94,7 @@ const ExploreOpportunities = () => {
       setSuccessMessage("Proposal submitted successfully!");
       setSelectedOrder(null);
       setSelectedProposal(null);
-
-      const updatedRes = await fetch("http://localhost:5000/proposals", {
+      const updatedRes = await fetch(`${BASE_URL}/proposals`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const updatedData = await updatedRes.json();

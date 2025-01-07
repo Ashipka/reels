@@ -6,7 +6,8 @@ const Notifications = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const response = await fetch("http://localhost:5000/notifications", {
+      const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+      const response = await fetch(`${BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
