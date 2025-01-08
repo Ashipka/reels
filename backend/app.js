@@ -10,6 +10,15 @@ const improvements = require("./routes/improvements");
 
 
 const app = express();
+
+// Serve React static files
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Fallback for React routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
+
 const cors = require('cors');
 app.use(cors({ origin: "*" }));
 
