@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "../App";
 
+
 const ProtectedRoute = ({ children }) => {
   const { setUser } = useContext(UserContext);
   const [isValidToken, setIsValidToken] = useState(null);
@@ -21,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
           `${process.env.REACT_APP_BASE_URL}/auth/verify-token`,
           {
             headers: { Authorization: `Bearer ${token}` },
+            credentials: "include", // Добавьте для передачи cookies
           }
         );
 
