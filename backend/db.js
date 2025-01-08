@@ -1,11 +1,11 @@
-const { Pool } = require('pg');
+require('dotenv').config();
 
-const pool = new Pool({
-    user: 'postgres', // Replace with your PostgreSQL username
-    host: 'localhost',
-    database: 'reels_marketplace',
-    password: 'Veroni4ka', // Replace with your PostgreSQL password
-    port: 5432,
+const { Pool } = require('pg');
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false, // Необходимо для Heroku
+    },
   });
 
 module.exports = pool;
