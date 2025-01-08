@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import "../styles/portfolio.css";
 
-const Portfolio = ({ creatorId, onEdit }) => {
+const Portfolio = ({ onEdit }) => {
+  const { creatorId: urlCreatorId } = useParams(); // creatorId из URL
+  const user = JSON.parse(localStorage.getItem("user")); // Текущий пользователь из localStorage
   const [portfolioItems, setPortfolioItems] = useState([]);
   const [error, setError] = useState("");
+
+  // Определение creatorId (используем из URL или из user.id для creator)
+  const creatorId = urlCreatorId || user?.id;
+
+  // Определяем, является ли текущий пользователь владельцем портфолио
+  const isCreator = user?.id === creatorId;
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -32,7 +41,11 @@ const Portfolio = ({ creatorId, onEdit }) => {
       }
     };
 
-    fetchPortfolio();
+    if (creatorId) {
+      fetchPortfolio();
+    } else {
+      setError("Creator ID is missing. Please log in or try again.");
+    }
   }, [creatorId]);
 
   return (
@@ -40,30 +53,33 @@ const Portfolio = ({ creatorId, onEdit }) => {
       <h2 className="portfolio-title">Portfolio</h2>
       {error && <p className="error-message">{error}</p>}
       {portfolioItems.length === 0 ? (
-        <p>No portfolio items yet. Add your first portfolio item!</p>
+        <p>No portfolio items found.</p>
       ) : (
         <div className="portfolio-grid">
           {portfolioItems.map((item) => (
             <div className="portfolio-card" key={item.id}>
-            <h3>{item.title}</h3>
-            <p>{item.description}</p>
-            {item.instagram_link && (
-              <div className="instagram-embed">
-                <blockquote
-                  className="instagram-media"
-                  data-instgrm-permalink={item.instagram_link}
-                  data-instgrm-version="14"
-                >
-                  <a href={item.instagram_link} target="_blank" rel="noopener noreferrer">
-                    View on Instagram
-                  </a>
-                </blockquote>
-              </div>
-            )}
-            <button className="edit-button" onClick={() => onEdit(item)}>
-              Edit
-            </button>
-          </div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              {item.instagram_link && (
+                <div className="instagram-embed">
+                  <blockquote
+                    className="instagram-media"
+                    data-instgrm-permalink={item.instagram_link}
+                    data-instgrm-version="14"
+                  >
+                    <a href={item.instagram_link} target="_blank" rel="noopener noreferrer">
+                      View on Instagram
+                    </a>
+                  </blockquote>
+                </div>
+              )}
+              {/* Показываем кнопку Edit только для creator */}
+              {isCreator && (
+                <button className="edit-button" onClick={() => onEdit(item)}>
+                  Edit
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}

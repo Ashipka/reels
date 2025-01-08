@@ -10,6 +10,7 @@ import CreateOrderPage from "./pages/CreateOrderPage";
 import ViewOrdersPage from "./pages/ViewOrdersPage";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import PortfolioManagement from "./pages/PortfolioManagement";
+import Portfolio from "./components/Portfolio";
 import ExploreOpportunities from "./pages/ExploreOpportunities"; // Import the new component
 import ProposalsPage from "./pages/ProposalsPage";
 import MyProposalsPage from "./pages/MyProposalsPage";
@@ -115,6 +116,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PortfolioManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/portfolio/:creatorId"
+                element={
+                  <ProtectedRoute>
+                    <Portfolio />
                   </ProtectedRoute>
                 }
               />

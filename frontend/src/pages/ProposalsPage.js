@@ -3,19 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import "../styles/proposals-page.css";
 
-
 const ProposalsPage = () => {
   const { orderId } = useParams();
   const token = localStorage.getItem("token");
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
-  const [proposals, setProposals] = useState([]); // List of proposals
-  const [status, setOrderStatus] = useState(""); // Order status
+  const [proposals, setProposals] = useState([]);
+  const [status, setOrderStatus] = useState("");
   const [error, setError] = useState("");
   const [selectedProposalId, setSelectedProposalId] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
-  const [readOnly, setReadOnly] = useState(false); // Add readOnly state
+  const [readOnly, setReadOnly] = useState(false);
 
   useEffect(() => {
     const fetchProposalsAndStatus = async () => {
@@ -23,15 +22,15 @@ const ProposalsPage = () => {
         const response = await fetch(`${BASE_URL}/proposals/order/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to fetch proposals and order status");
         }
-  
+
         const { proposals = [], status } = await response.json();
         setProposals(proposals);
         setOrderStatus(status);
-  
+
         if (status === "In Progress") {
           setReadOnly(true);
           const acceptedProposal = proposals.find((p) => p.status === "Accepted");
@@ -44,13 +43,13 @@ const ProposalsPage = () => {
         setError("Unable to load proposals and order status");
       }
     };
-  
+
     if (token) {
       fetchProposalsAndStatus();
     } else {
       setError("You are not authenticated.");
     }
-  }, [orderId, token, BASE_URL]);  
+  }, [orderId, token, BASE_URL]);
 
   const handleUpdateProposalStatus = async (status) => {
     if (!selectedProposalId) {
@@ -79,10 +78,9 @@ const ProposalsPage = () => {
           : "Proposal marked as Waiting for Payment!";
       setSuccessMessage(message);
 
-      // Refetch proposals and update status
       setTimeout(() => {
-        navigate("/view-orders"); // Redirect to view-orders
-      }, 2000); // Delay for showing success message
+        navigate("/view-orders");
+      }, 2000);
     } catch (err) {
       console.error(err);
       setError("Failed to update proposal status. Please try again.");
@@ -100,13 +98,11 @@ const ProposalsPage = () => {
           proposalId: proposal.id,
         }),
       });
-  
-      const data = await response.json(); // Parsing JSON response
-      console.log("Stripe session response:", data);
-  
+
+      const data = await response.json();
       const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
       const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
-  
+
       if (error) {
         console.error("Stripe checkout error:", error.message);
       }
@@ -114,7 +110,6 @@ const ProposalsPage = () => {
       console.error("Error initiating Stripe payment:", err.message);
     }
   };
-  
 
   return (
     <div className="proposals-page">
@@ -152,21 +147,30 @@ const ProposalsPage = () => {
                     <div>
                       <strong>Status:</strong> {proposal.status}
                     </div>
+                    <div>
+                      <strong>Creator:</strong>{" "}
+                      <span
+                        className="portfolio-link"
+                        onClick={() => navigate(`/portfolio/${proposal.creator_id}`)}
+                      >
+                        {proposal.creator_name || "View Portfolio"}
+                      </span>
+                    </div>
                   </div>
                 </label>
                 {proposal.status.trim().toLowerCase() === "waiting for payment" && (
-                    <button
-                        className="action-button"
-                        onClick={() => handleStripePayment(proposal)}
-                    >
-                        Pay with Stripe
-                    </button>
-                    )
-                }
-                {proposal.status === "Project Ready for Confirmation" && (
-                  <button 
+                  <button
                     className="action-button"
-                    onClick={() => navigate(`/discussion/${proposal.id}`)}>
+                    onClick={() => handleStripePayment(proposal)}
+                  >
+                    Pay with Stripe
+                  </button>
+                )}
+                {proposal.status === "Project Ready for Confirmation" && (
+                  <button
+                    className="action-button"
+                    onClick={() => navigate(`/discussion/${proposal.id}`)}
+                  >
                     View project
                   </button>
                 )}
