@@ -14,7 +14,11 @@ const improvements = require("./routes/improvements");
 const app = express();
 
 // Define allowed origins
-const allowedOrigins = ["http://192.168.34.5:3000", "http://localhost:3000"];
+const allowedOrigins = [
+  "http://192.168.34.5:3000",
+  "http://localhost:3000",
+  "https://make-me-reels-ca5bad2c4b7f.herokuapp.com"
+];
 
 // CORS middleware configuration
 app.use(
