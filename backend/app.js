@@ -17,7 +17,9 @@ const app = express();
 const allowedOrigins = [
   "http://192.168.34.5:3000",
   "http://localhost:3000",
-  "https://make-me-reels-ca5bad2c4b7f.herokuapp.com"
+  "https://make-me-reels-ca5bad2c4b7f.herokuapp.com",
+  "http://makemereels.com",
+  "https://makemereels.com"
 ];
 
 // CORS middleware configuration
