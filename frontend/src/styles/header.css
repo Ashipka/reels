@@ -76,3 +76,63 @@ header {
   .user-menu .dropdown-menu button:hover {
     background-color: #e6e6e6; /* Light gray hover effect */
   }
+
+  /* Dropdown container */
+.dropdown {
+  position: relative; /* Ensure the dropdown menu is positioned relative to this container */
+  display: inline-block; /* Allow inline alignment */
+}
+
+.dropdown-button {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 15px; /* Padding for the button */
+}
+
+.dropdown-button:hover {
+  text-decoration: underline; /* Hover effect */
+}
+
+.dropdown-menu {
+  display: none; /* Hide the menu by default */
+  position: absolute;
+  top: 100%; /* Position below the button */
+  left: 0;
+  background-color: #fff; /* White background for the dropdown */
+  color: #333; /* Dark text color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 10px 0; /* Vertical padding for items */
+  z-index: 1000; /* Ensure it appears above other elements */
+  min-width: 160px; /* Set a minimum width for the dropdown */
+}
+
+/* Show dropdown menu on hover */
+.dropdown:hover .dropdown-menu {
+  display: block; /* Display the menu when hovering over the dropdown */
+}
+
+/* Dropdown menu items */
+.dropdown-menu li {
+  padding: 10px 15px; /* Padding inside each menu item */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdown-menu li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  display: block; /* Make the entire item clickable */
+}
+
+.dropdown-menu li a:hover {
+  background-color: #f0f0f0; /* Light gray hover effect */
+}
+
+  

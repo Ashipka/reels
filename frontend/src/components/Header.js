@@ -91,18 +91,28 @@ const Header = () => {
           <li>
             <Link to="/explore-creators">Explore Creators</Link>
           </li>
-          <li>
-            <Link to="/my-orders">My Orders</Link>
+          <li className="dropdown">
+            <button className="dropdown-button">
+              My Orders ▼
+            </button>
+            <ul className="dropdown-menu">
+              <li>
+                <Link to="/view-orders">View Orders</Link>
+              </li>
+              <li>
+                <Link to="/create-order">Create New</Link>
+              </li>
+            </ul>
           </li>
-          <li className="user-menu" ref={dropdownRef}>
-            <button onClick={toggleDropdown}>
+          <li className="user-menu dropdown">
+            <button className="dropdown-button">
               {user.name} ▼
             </button>
-            {dropdownVisible && (
-              <div className="dropdown-menu">
+            <ul className="dropdown-menu">
+              <li>
                 <button onClick={handleLogout}>Logout</button>
-              </div>
-            )}
+              </li>
+            </ul>
           </li>
         </>
       );
