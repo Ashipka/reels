@@ -62,10 +62,7 @@ const Header = () => {
       return (
         <>
           <li>
-            <Link to="/opportunities">Opportunities</Link>
-          </li>
-          <li>
-            <Link to="/my-proposals">My Proposals</Link>
+            <Link to="/opportunities">Orders</Link>
           </li>
           <li className="user-menu dropdown">
             <button className="dropdown-button">
@@ -73,7 +70,10 @@ const Header = () => {
             </button>
             <ul className="dropdown-menu">
               <li>
-                <Link to="/portfolio">My Portfolio</Link>
+                <Link to="/my-proposals">Proposals</Link>
+              </li>
+              <li>
+                <Link to="/portfolio">Portfolio</Link>
               </li>
               <li>
                 <button onClick={handleLogout}>Logout</button>
