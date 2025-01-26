@@ -34,7 +34,10 @@ const Portfolio = ({ onEdit }) => {
 
         // Trigger Instagram embeds
         if (window.instgrm) {
+          console.log("Processing Instagram embeds");
           window.instgrm.Embeds.process();
+        } else {
+          console.error("Instagram embed script not loaded");
         }
       } catch (err) {
         setError(err.message);
