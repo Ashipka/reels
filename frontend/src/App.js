@@ -19,7 +19,8 @@ import PaymentCancelled from "./pages/PaymentCancelled";
 import UploadProjectPage from "./pages/UploadProjectPage";
 import ProjectDiscussionPage from "./pages/ProjectDiscussionPage";
 import ProposalForm from "./components/ProposalForm";
-
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ExploreCreatorsPage from "./pages/ExploreCreatorsPage";
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -31,7 +32,7 @@ import "./styles/create-order.css";
 import "./styles/view-orders.css";
 import "./styles/portfolio.css";
 import "./styles/ExploreOpportunities.css";
-import VerifyEmailPage from "./pages/VerifyEmailPage";
+
 
 // Create User Context
 export const UserContext = createContext();
@@ -187,6 +188,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProposalForm onSave={handleProposalSave} />
+                  </ProtectedRoute>
+              }
+            />
+            <Route
+                path="/explore-creators"
+                element={
+                  <ProtectedRoute>
+                    <ExploreCreatorsPage/>
                   </ProtectedRoute>
               }
             />

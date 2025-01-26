@@ -12,6 +12,10 @@ const UserDashboard = () => {
     navigate("/view-orders");
   };
 
+  const handleExploreCreatorsClick = () => {
+    navigate("/explore-creators");
+  };
+
   return (
     <div className="dashboard">
       <h2>Welcome to Your Dashboard</h2>
@@ -19,7 +23,7 @@ const UserDashboard = () => {
       <div className="dashboard-actions">
         <button onClick={handleCreateOrderClick}>Create New Order</button>
         <button onClick={handleViewOrdersClick}>View Your Orders</button>
-        <button>Explore Creators</button>
+        <button onClick={handleExploreCreatorsClick}>Explore Creators</button>
       </div>
     </div>
   );

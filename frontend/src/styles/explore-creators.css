@@ -1,0 +1,72 @@
+.explore-creators {
+    padding: 20px;
+  }
+  
+  .filters {
+    margin-bottom: 20px;
+  }
+  
+  .creators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .creator-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    background-color: #fff;
+  }
+  
+  .creator-card h3 {
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .creator-card a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .custom-dropdown {
+    padding: 10px;
+    padding-right: 30px; /* Add extra padding to the right for the arrow */
+    font-size: 16px;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none; /* Removes default arrow in some browsers */
+    position: relative;
+  }
+  
+  .custom-dropdown:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  }
+  
+  .custom-dropdown:hover {
+    background-color: #e9ecef;
+  }
+  
+  .custom-dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .custom-dropdown-container::after {
+    content: "▼"; /* Custom arrow */
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    right: 10px; /* Position the arrow to the far right */
+    transform: translateY(-50%);
+    pointer-events: none; /* Makes sure it doesn't block the dropdown */
+    color: #007bff;
+  }
+  

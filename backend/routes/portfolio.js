@@ -64,4 +64,21 @@ router.put("/:id", authenticateToken, authenticateCreator, async (req, res) => {
     }
   });
 
+  router.get("/", async (req, res) => {
+    const { category } = req.query;
+
+    try {
+      const query = category
+        ? `SELECT * FROM portfolio WHERE $1 = ANY(tags)` // Match exact category
+        : `SELECT * FROM portfolio`;
+      const values = category ? [`%${category}%`] : [];
+      const result = await pool.query(query, values);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching portfolios:', err.message);
+      res.status(500).json({ message: 'Failed to load portfolios' });
+    }
+  });
+  
+
 module.exports = router;
