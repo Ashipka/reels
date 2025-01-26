@@ -14,6 +14,7 @@ const Portfolio = ({ onEdit }) => {
   // Определяем, является ли текущий пользователь владельцем портфолио
   const isCreator = user?.id === creatorId;
 
+  // Fetch portfolio items
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
@@ -31,14 +32,6 @@ const Portfolio = ({ onEdit }) => {
 
         const data = await response.json();
         setPortfolioItems(data);
-
-        // Trigger Instagram embeds
-        if (window.instgrm) {
-          console.log("Processing Instagram embeds");
-          window.instgrm.Embeds.process();
-        } else {
-          console.error("Instagram embed script not loaded");
-        }
       } catch (err) {
         setError(err.message);
       }
@@ -50,6 +43,30 @@ const Portfolio = ({ onEdit }) => {
       setError("Creator ID is missing. Please log in or try again.");
     }
   }, [creatorId]);
+
+  // Dynamically load Instagram embed script and process embeds
+  useEffect(() => {
+    const loadInstagramScript = () => {
+      if (!document.querySelector('script[src="https://www.instagram.com/embed.js"]')) {
+        const script = document.createElement("script");
+        script.src = "https://www.instagram.com/embed.js";
+        script.async = true;
+        script.onload = () => {
+          if (window.instgrm) {
+            console.log("Processing Instagram embeds");
+            window.instgrm.Embeds.process();
+          }
+        };
+        script.onerror = () => console.error("Failed to load Instagram embed script");
+        document.body.appendChild(script);
+      } else if (window.instgrm) {
+        console.log("Instagram embed script already loaded, processing embeds");
+        window.instgrm.Embeds.process();
+      }
+    };
+
+    loadInstagramScript();
+  }, [portfolioItems]);
 
   return (
     <div className="portfolio">
@@ -76,7 +93,7 @@ const Portfolio = ({ onEdit }) => {
                   </blockquote>
                 </div>
               )}
-              {/* Показываем кнопку Edit только для creator */}
+              {/* Show Edit button only for the creator */}
               {isCreator && (
                 <button className="edit-button" onClick={() => onEdit(item)}>
                   Edit
