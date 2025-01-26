@@ -62,23 +62,23 @@ const Header = () => {
       return (
         <>
           <li>
-            <Link to="/explore-creators">Explore Creators</Link>
-          </li>
-          <li>
-            <Link to="/my-portfolio">My Portfolio</Link>
+            <Link to="/opportunities">Opportunities</Link>
           </li>
           <li>
             <Link to="/my-proposals">My Proposals</Link>
           </li>
-          <li className="user-menu" ref={dropdownRef}>
-            <button onClick={toggleDropdown}>
+          <li className="user-menu dropdown">
+            <button className="dropdown-button">
               {user.name} ▼
             </button>
-            {dropdownVisible && (
-              <div className="dropdown-menu">
+            <ul className="dropdown-menu">
+              <li>
+                <Link to="/portfolio">My Portfolio</Link>
+              </li>
+              <li>
                 <button onClick={handleLogout}>Logout</button>
-              </div>
-            )}
+              </li>
+            </ul>
           </li>
         </>
       );
