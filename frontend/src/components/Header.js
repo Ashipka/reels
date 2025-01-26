@@ -32,33 +32,90 @@ const Header = () => {
     };
   }, []);
 
+  const renderMenu = () => {
+    if (!user) {
+      // Unauthenticated user menu
+      return (
+        <>
+          <li>
+            <Link to="/explore-creators">Explore Creators</Link>
+          </li>
+          <li>
+            <Link to="/login">Login</Link>
+          </li>
+          <li>
+            <span
+              onClick={() =>
+                navigate("/login", { state: { isSignUp: true } }) // Pass state to open in Sign Up mode
+              }
+              style={{ cursor: "pointer", fontWeight: "bold" }}
+            >
+              Register
+            </span>
+          </li>
+        </>
+      );
+    }
+
+    if (user.role === "creator") {
+      // Creator menu
+      return (
+        <>
+          <li>
+            <Link to="/explore-creators">Explore Creators</Link>
+          </li>
+          <li>
+            <Link to="/my-portfolio">My Portfolio</Link>
+          </li>
+          <li>
+            <Link to="/my-proposals">My Proposals</Link>
+          </li>
+          <li className="user-menu" ref={dropdownRef}>
+            <button onClick={toggleDropdown}>
+              {user.name} ▼
+            </button>
+            {dropdownVisible && (
+              <div className="dropdown-menu">
+                <button onClick={handleLogout}>Logout</button>
+              </div>
+            )}
+          </li>
+        </>
+      );
+    }
+
+    if (user.role === "client") {
+      // Client menu
+      return (
+        <>
+          <li>
+            <Link to="/explore-creators">Explore Creators</Link>
+          </li>
+          <li>
+            <Link to="/my-orders">My Orders</Link>
+          </li>
+          <li className="user-menu" ref={dropdownRef}>
+            <button onClick={toggleDropdown}>
+              {user.name} ▼
+            </button>
+            {dropdownVisible && (
+              <div className="dropdown-menu">
+                <button onClick={handleLogout}>Logout</button>
+              </div>
+            )}
+          </li>
+        </>
+      );
+    }
+  };
+
   return (
     <header className="header">
       <div className="logo">
         <Link to="/">Make me reels</Link>
       </div>
       <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          {user ? (
-            <li className="user-menu" ref={dropdownRef}>
-              <button onClick={toggleDropdown}>
-                {user.name} ▼
-              </button>
-              {dropdownVisible && (
-                <div className="dropdown-menu">
-                  <button onClick={handleLogout}>Logout</button>
-                </div>
-              )}
-            </li>
-          ) : (
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-          )}
-        </ul>
+        <ul>{renderMenu()}</ul>
       </nav>
     </header>
   );

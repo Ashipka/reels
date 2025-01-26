@@ -194,9 +194,7 @@ function App() {
             <Route
                 path="/explore-creators"
                 element={
-                  <ProtectedRoute>
                     <ExploreCreatorsPage/>
-                  </ProtectedRoute>
               }
             />
             </Routes>

@@ -1,22 +1,27 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { UserContext } from "../App"; // Import UserContext
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { UserContext } from "../App";
 
 const LoginForm = () => {
+  const location = useLocation(); // To access passed state
+  const [isSignUp, setIsSignUp] = useState(location.state?.isSignUp || false); // Initialize based on state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState(""); // For sign up only
+  const [name, setName] = useState(""); // For sign-up only
   const [role, setRole] = useState("client"); // Default role: Client
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // Success message
-  const [isSignUp, setIsSignUp] = useState(false); // Toggle between login and sign up
-  const { setUser } = useContext(UserContext); // Access setUser from context
+  const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsSignUp(location.state?.isSignUp || false); // Update based on location state
+  }, [location.state]);
 
   const handleToggle = () => {
     setIsSignUp((prev) => !prev);
-    setError(""); // Reset error message when toggling
-    setSuccessMessage(""); // Reset success message when toggling
+    setError("");
+    setSuccessMessage("");
   };
 
   const BASE_URL = process.env.REACT_APP_BASE_URL;
