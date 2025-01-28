@@ -1,0 +1,60 @@
+/* Контейнер формы */
+.portfolio-form {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  /* Стили для элемента формы (input, textarea, select) */
+  .portfolio-form input,
+  .portfolio-form textarea,
+  .portfolio-form select {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 16px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  /* Фокусное состояние */
+  .portfolio-form input:focus,
+  .portfolio-form textarea:focus,
+  .portfolio-form select:focus {
+    border-color: #66afe9;
+    outline: none;
+    box-shadow: 0 0 4px rgba(102, 175, 233, 0.6);
+  }
+  
+  /* Обёртка для каждого поля */
+  .field-wrapper {
+    margin-bottom: 16px;
+  }
+  
+  /* Стили для текстовых меток */
+  .field-label {
+    font-weight: 600;
+    display: block;
+  }
+  
+  /* Пример стилизации кнопки */
+  .portfolio-form button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #2980b9;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .portfolio-form button:hover {
+    background-color: #3498db;
+  }
+  
+  /* Стили для сообщения об ошибке, если нужно */
+  .error-message {
+    color: red;
+    margin-bottom: 16px;
+  }
+  

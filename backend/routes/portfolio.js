@@ -4,15 +4,19 @@ const authenticateToken = require("../middlewares/authenticateToken");
 const authenticateCreator = require("../middlewares/authenticateCreator");
 const pool = require("../db"); // Import shared pool
 
-// Add a portfolio item
+// Создать элемент портфолио
 router.post("/", authenticateToken, authenticateCreator, async (req, res) => {
-  const { title, description, tags, instagram_link } = req.body;
+  const { title, description, tags, instagram_link, category_id } = req.body; 
+  // ↑ обращаем внимание на category_id
   const userId = req.user.id;
 
   try {
+    // Добавляем category_id в INSERT
     const result = await pool.query(
-      'INSERT INTO portfolio (user_id, title, description, tags, instagram_link) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [userId, title, description, tags, instagram_link]
+      `INSERT INTO portfolio (user_id, title, description, tags, instagram_link, category_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [userId, title, description, tags, instagram_link, category_id]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -21,62 +25,71 @@ router.post("/", authenticateToken, authenticateCreator, async (req, res) => {
   }
 });
 
-// Get portfolio for the logged-in user
-router.get('/:id', authenticateToken, async (req, res) => {
-    const userId = req.params.id;
-  
-    try {
-      const result = await pool.query('SELECT * FROM portfolio WHERE user_id = $1', [userId]);
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'No portfolio found for this user.' });
-      }
-      res.status(200).json(result.rows);
-    } catch (err) {
-      console.error('Error fetching portfolio:', err);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-// Get portfolio for a specific user by ID
+// Обновить элемент портфолио по ID
 router.put("/:id", authenticateToken, authenticateCreator, async (req, res) => {
-    const { id } = req.params; // Extract portfolio item ID from URL
-    const { title, description, tags, instagram_link } = req.body; // Extract updated fields
-    const userId = req.user.id; // Extract the logged-in user's ID from token
-  
-    try {
-      // Check if the portfolio item exists and belongs to the user
-      const result = await pool.query(
-        `UPDATE portfolio 
-         SET title = $1, description = $2, tags = $3, instagram_link = $4 
-         WHERE id = $5 AND user_id = $6 
-         RETURNING *`,
-        [title, description, tags, instagram_link, id, userId] // "id" might be undefined
-      );
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: "Portfolio item not found or unauthorized." });
-      }
-  
-      res.status(200).json(result.rows[0]);
-    } catch (err) {
-      console.error("Error updating portfolio item:", err);
-      res.status(500).json({ message: "Internal server error" });
+  const { id } = req.params; 
+  const { title, description, tags, instagram_link, category_id } = req.body; 
+  const userId = req.user.id; 
+
+  try {
+    // Добавляем category_id в UPDATE
+    const result = await pool.query(
+      `UPDATE portfolio 
+       SET title = $1,
+           description = $2,
+           tags = $3,
+           instagram_link = $4,
+           category_id = $5
+       WHERE id = $6 AND user_id = $7
+       RETURNING *`,
+      [title, description, tags, instagram_link, category_id, id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Portfolio item not found or unauthorized." });
     }
-  });
+
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error("Error updating portfolio item:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Получить все элементы портфолио для конкретного пользователя
+router.get("/:userId", authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query("SELECT * FROM portfolio WHERE user_id = $1", [userId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No portfolio found for this user." });
+    }
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Error fetching portfolio:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
   router.get("/", async (req, res) => {
-    const { category } = req.query;
-
+    const { categoryId } = req.query;
+  
     try {
-      const query = category
-        ? `SELECT * FROM portfolio WHERE $1 = ANY(tags)` // Match exact category
-        : `SELECT * FROM portfolio`;
-      const values = category ? [`%${category}%`] : [];
+      let query = "SELECT * FROM portfolio"; 
+      let values = [];
+  
+      // Если categoryId есть и оно не пустое — добавляем условие WHERE
+      if (categoryId) {
+        query += " WHERE category_id = $1";
+        values.push(categoryId);
+      }
+  
       const result = await pool.query(query, values);
       res.json(result.rows);
     } catch (err) {
-      console.error('Error fetching portfolios:', err.message);
-      res.status(500).json({ message: 'Failed to load portfolios' });
+      console.error("Error fetching portfolios:", err.message);
+      res.status(500).json({ message: "Failed to load portfolios" });
     }
   });
   

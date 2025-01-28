@@ -10,6 +10,7 @@ const proposalRoutes = require("./routes/proposals");
 const stripeRoutes = require("./routes/stripe");
 const projects = require("./routes/projects");
 const improvements = require("./routes/improvements");
+const categories = require("./routes/categories");
 
 const app = express();
 
@@ -58,7 +59,7 @@ app.use("/proposals", proposalRoutes); // Proposals routes
 app.use("/api/stripe", stripeRoutes); // Stripe routes
 app.use("/projects", projects); // Projects routes
 app.use("/improvements", improvements); // Improvements routes
-
+app.use("/categories", categories); // Categories routes
 // Serve React static files
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 
