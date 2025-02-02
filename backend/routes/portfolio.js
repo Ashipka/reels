@@ -76,7 +76,7 @@ router.get("/:userId", authenticateToken, async (req, res) => {
     const { categoryId } = req.query;
   
     try {
-      let query = "SELECT * FROM portfolio"; 
+      let query = `SELECT p.*, u.name as creator_name FROM portfolio p JOIN users u ON p.user_id = u.id`; 
       let values = [];
   
       // Если categoryId есть и оно не пустое — добавляем условие WHERE
