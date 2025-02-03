@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
@@ -21,6 +21,7 @@ import ProjectDiscussionPage from "./pages/ProjectDiscussionPage";
 import ProposalForm from "./components/ProposalForm";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ExploreCreatorsPage from "./pages/ExploreCreatorsPage";
+import { initGA, logPageView } from './analytics';
 
 import "./styles/general.css";
 import "./styles/header.css";
@@ -33,14 +34,25 @@ import "./styles/view-orders.css";
 import "./styles/portfolio.css";
 import "./styles/ExploreOpportunities.css";
 
-
 // Create User Context
 export const UserContext = createContext();
+
+// Component to track route changes for Google Analytics
+function RouteChangeTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    logPageView();
+  }, [location]);
+
+  return null;
+}
 
 function App() {
   const [user, setUser] = useState(null); // State for managing user data
 
   useEffect(() => {
+    initGA();
     // Retrieve user from localStorage on app load
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -85,6 +97,8 @@ function App() {
   return (
     <UserContext.Provider value={{ user, setUser }}>
       <Router>
+        {/* Track route changes */}
+        <RouteChangeTracker />
         <div className="wrapper">
           <Header />
           <div className="content">
@@ -173,7 +187,8 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <UploadProjectPage />
-                  </ProtectedRoute>} 
+                  </ProtectedRoute>
+                } 
               />
               <Route
                 path="/discussion/:proposalId"
@@ -181,22 +196,20 @@ function App() {
                   <ProtectedRoute>
                     <ProjectDiscussionPage />
                   </ProtectedRoute>
-              }
-            />
-            <Route
+                }
+              />
+              <Route
                 path="/proposal-form"
                 element={
                   <ProtectedRoute>
                     <ProposalForm onSave={handleProposalSave} />
                   </ProtectedRoute>
-              }
-            />
-            <Route
+                }
+              />
+              <Route
                 path="/explore-creators"
-                element={
-                    <ExploreCreatorsPage/>
-              }
-            />
+                element={<ExploreCreatorsPage />}
+              />
             </Routes>
           </div>
           <Footer />
