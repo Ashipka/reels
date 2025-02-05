@@ -36,6 +36,7 @@ import "./styles/ExploreOpportunities.css";
 
 // Create User Context
 export const UserContext = createContext();
+initGA();
 
 // Component to track route changes for Google Analytics
 function RouteChangeTracker() {
@@ -52,7 +53,6 @@ function App() {
   const [user, setUser] = useState(null); // State for managing user data
 
   useEffect(() => {
-    initGA();
     // Retrieve user from localStorage on app load
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
